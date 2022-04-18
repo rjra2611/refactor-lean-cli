@@ -11,7 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Any, Dict
+from typing import Any, Dict, List
 import click
 from lean.components.util.logger import Logger
 from lean.container import container
@@ -59,7 +59,7 @@ Create an API key by logging in and accessing the Binance API Management page (h
             if configuration["Name"] == "environments":
                 continue
             
-            if not skip_build and "required" in configuration.keys() and configuration["required"] == True:
+            if "required" in configuration.keys() and configuration["required"]:
                 
                 if configuration["requirement-type"] == "prompt":
                     user_choice = click.prompt(configuration["Name"], self._get_default(lean_config, configuration["Name"]))
@@ -92,6 +92,12 @@ Create an API key by logging in and accessing the Binance API Management page (h
         self._configurations.append(organization_id_obj)
         return self
 
+    def get_required_properties(self) -> List[str]:
+        return [config["Name"] for config in self._configurations if "required" in config.keys() and config["required"]]
+    
+    def update_properties(self, properties: Dict[str, str]):
+        raise NotImplementedError()
+
     def _configure_environment(self, lean_config: Dict[str, Any], environment_name: str) -> None:
         self.ensure_module_installed()
 
@@ -108,7 +114,7 @@ Create an API key by logging in and accessing the Binance API Management page (h
                 continue
             elif (self._testnet and not "paper" in configuration["environment"]) or (not self._testnet and not "live" in configuration["environment"]):
                 continue
-            elif "required" in configuration.keys() and configuration["required"] == True:
+            elif "required" in configuration.keys() and configuration["required"]:
                 save_properties_keys.append(configuration["Name"])
             
             lean_config[configuration["Name"]] = configuration["Value"]
