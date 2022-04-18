@@ -23,7 +23,7 @@ import click
 from lean.click import LeanCommand, PathParameter, ensure_options
 from lean.constants import DEFAULT_ENGINE_IMAGE, GUI_PRODUCT_INSTALL_ID
 from lean.container import container
-from lean.models.brokerages.local import all_local_brokerages, local_brokerage_data_feeds, all_local_data_feeds
+from lean.models.brokerages.local import all_local_brokerages, local_brokerage_data_feeds, all_local_data_feeds, run_options
 from lean.models.errors import MoreInfoError
 from lean.models.logger import Option
 
@@ -235,38 +235,75 @@ def options_from_db(options):
         array=str,
         number=float,
         string=str,
+        boolean=bool
     )
     def decorator(f):
         for opt_params in reversed(options):
+            long = opt_params['Name']
+            name = str(opt_params['Name']).replace('-','_')
             param_decls = (
-                '--' + opt_params['long'],
-                opt_params['Name'])
-            option_type = 'ronit'
+                '--' + long,
+                name)
             attrs = dict(
-                type=map_to_types.get(opt_params['type'], opt_params['type']),
+                type=map_to_types.get(opt_params['input-type'], opt_params['input-type']),
                 help=opt_params['Help'],
-                default=_get_default_value(opt_params['long'])
+                default=_get_default_value(opt_params['Name'])
             )
 
             click.option(*param_decls, **attrs)(f)
         return f
     return decorator
 
-run_options = [
-    {
-        "Name": "binance_api_key",
-        "long": "binance-api-key",
-        "Help": "what is this",
-        "type": "string",
-        "required": False
-    }
-]
-
-
 @click.command(cls=LeanCommand, requires_lean_config=True, requires_docker=True)
 @click.argument("project", type=PathParameter(exists=True, file_okay=True, dir_okay=True))
+@click.option("--environment",
+              type=str,
+              help="The environment to use")
+@click.option("--output",
+              type=PathParameter(exists=False, file_okay=False, dir_okay=True),
+              help="Directory to store results in (defaults to PROJECT/live/TIMESTAMP)")
+@click.option("--detach", "-d",
+              is_flag=True,
+              default=False,
+              help="Run the live deployment in a detached Docker container and return immediately")
+@click.option("--gui",
+              is_flag=True,
+              default=False,
+              help="Enable monitoring and controlling of the deployment via the local GUI")
+@click.option("--gui-organization",
+              type=str,
+              default=lambda: _get_default_value("job-organization-id"),
+              help="The name or id of the organization with the local GUI module subscription")
+@click.option("--brokerage",
+              type=click.Choice([b.get_name() for b in all_local_brokerages], case_sensitive=False),
+              help="The brokerage to use")
+@click.option("--data-feed",
+              type=click.Choice([d.get_name() for d in all_local_data_feeds], case_sensitive=False),
+              help="The data feed to use")
+@click.option("--release",
+              is_flag=True,
+              default=False,
+              help="Compile C# projects in release configuration instead of debug")
+@click.option("--image",
+              type=str,
+              help=f"The LEAN engine image to use (defaults to {DEFAULT_ENGINE_IMAGE})")
+@click.option("--update",
+              is_flag=True,
+              default=False,
+              help="Pull the LEAN engine image before starting live trading")
 @options_from_db(run_options)
-def live(project: Path, *args, **kwargs) -> None:
+def live(project: Path,
+        environment: Optional[str],
+        output: Optional[Path],
+        detach: bool,
+        gui: bool,
+        gui_organization: Optional[str],
+        brokerage: Optional[str],
+        data_feed: Optional[str],
+        release: bool,
+        image: Optional[str],
+        update: bool,
+        *args, **kwargs) -> None:
     """Start live trading a project locally using Docker.
 
     \b
@@ -299,7 +336,7 @@ def live(project: Path, *args, **kwargs) -> None:
     if output is None:
         output = algorithm_file.parent / "live" / datetime.now().strftime("%Y-%m-%d_%H-%M-%S")
 
-    if kwargs["gui"]:
+    if gui:
         module_manager = container.module_manager()
         module_manager.install_module(GUI_PRODUCT_INSTALL_ID, _get_organization_id(gui_organization, "local GUI"))
 
@@ -316,9 +353,11 @@ def live(project: Path, *args, **kwargs) -> None:
     elif brokerage is not None or data_feed is not None:
         ensure_options(["brokerage", "data_feed"])
 
-        brokerage_configurer = [local_brokerage for local_brokerage in all_local_brokerages if local_brokerage.get_name()][0]
-        ensure_options(brokerage_configurer.get_required_properties())
-        brokerage_configurer.update_properties()
+        brokerage_configurer = [local_brokerage for local_brokerage in all_local_brokerages if local_brokerage.get_name() == brokerage][0]
+        required_properties = [str(x).replace('-','_') for x in brokerage_configurer.get_required_properties()]
+        ensure_options(required_properties)
+        required_properties = {prop:kwargs[prop] for prop in required_properties}
+        brokerage_configurer.update_properties(required_properties)
         
         data_feed_configurer = [local_data_feed for local_data_feed in all_local_data_feeds if local_data_feed.get_name()][0]
         ensure_options(data_feed_configurer.get_required_properties())

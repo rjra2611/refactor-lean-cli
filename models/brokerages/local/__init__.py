@@ -40,20 +40,26 @@ brokerages = []
 dataQueueHandlers = []
 historyProviders = [] 
 brokeragesAndDataQueueHandlers = {}
+json_modules = ''
+run_options = []
 
 with open('C:/Users/USER/Anaconda3/envs/myenv/Lib/site-packages/lean/cli_data.json') as f: 
-    data = json.load(f)   
-    for json_module_data in data['modules']:
-        if "brokerage" in json_module_data["type"]:
-            brokerage = JsonBrokerage(json_module_data)
+    data = json.load(f)
+    json_modules = data['modules']   
+    for json_module in json_modules:
+        if "brokerage" in json_module["type"]:
+            brokerage = JsonBrokerage(json_module)
             brokerages.append(brokerage)
-        if "data-queue-handler" in json_module_data["type"]:
-            dataQueueHandler = JsonBrokerage(json_module_data)
+        if "data-queue-handler" in json_module["type"]:
+            dataQueueHandler = JsonBrokerage(json_module)
             dataQueueHandlers.append(dataQueueHandler)
-        if "history-provider" in json_module_data["type"]:
+        if "history-provider" in json_module["type"]:
             pass
         if brokerage != None and dataQueueHandler != None:
             brokeragesAndDataQueueHandlers.update({brokerage:[dataQueueHandler]})
+        for config in json_module["configurations"]:
+            if "required" in config.keys() and config["required"]:
+                run_options.append(config)
             
 all_local_brokerages = [
     PaperTradingBrokerage,
