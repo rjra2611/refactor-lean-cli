@@ -15,6 +15,7 @@
           "Help": "",
           "required": true,
           "requirement-type": "confirm",
+          "input-type": "boolean",
           "requirement-statement":"Use the testnet?", 
           "Name": "binance-use-testnet",
           "Value": [],
@@ -28,6 +29,7 @@
            "required": true,
            "Name": "binance-api-key",
            "requirement-type": "prompt",
+           "input-type": "string",
            "environment": [
              "live",
              "paper"
@@ -38,6 +40,7 @@
           "required": true,
           "Name": "binance-api-secret",
           "requirement-type": "prompt_password",
+          "input-type": "string",
           "environment": [
             "live",
             "paper"
