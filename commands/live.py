@@ -184,8 +184,8 @@ def _configure_lean_config_interactively(lean_config: Dict[str, Any], environmen
     data_feed = logger.prompt_list("Select a data feed", [
         Option(id=data_feed, label=data_feed.get_name()) for data_feed in local_brokerage_data_feeds[brokerage]
     ])
-
-    data_feed.build(lean_config, logger).configure(lean_config, environment_name)
+    is_data_feed_brokerage = True if brokerage._name == data_feed._name else False
+    data_feed.build(lean_config, logger, is_data_feed_brokerage).configure(lean_config, environment_name)
 
 
 _cached_organizations = None
