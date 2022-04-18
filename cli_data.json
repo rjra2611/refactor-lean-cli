@@ -1,0 +1,105 @@
+{
+   "modules": [
+     {
+       "type": [
+         "brokerage",
+         "data-queue-handler",
+         "history-provider"
+       ],
+       "product-id": "176",
+       "is-brokerage": true,
+       "name": "Ronit",
+       "installs": true,
+       "configurations": [
+        {
+          "Help": "",
+          "required": true,
+          "requirement-type": "confirm",
+          "requirement-statement":"Use the testnet?", 
+          "Name": "binance-use-testnet",
+          "Value": [],
+          "environment": [
+            "live",
+            "paper"
+          ]
+        },
+        {
+           "Help": "",
+           "required": true,
+           "Name": "binance-api-key",
+           "requirement-type": "prompt",
+           "environment": [
+             "live",
+             "paper"
+           ]
+        },
+        {
+          "Help": "",
+          "required": true,
+          "Name": "binance-api-secret",
+          "requirement-type": "prompt_password",
+          "environment": [
+            "live",
+            "paper"
+          ]
+        },
+         {
+           "Help": "",
+           "Name": "binance-api-url",
+           "Value": "https://api.binance.com",
+           "environment": [
+             "live"
+           ]
+         },
+         {
+          "Help": "",
+          "Name": "binance-api-url",
+          "Value": "https://testnet.binance.vision",
+          "environment": [
+            "paper"
+          ]
+        },
+         {
+           "Name": "binance-websocket-url",
+           "Value": "wss://stream.binance.com:9443/ws",
+           "environment": [
+             "live"
+           ]
+         },
+         {
+          "Name": "binance-websocket-url",
+          "Value": "wss://testnet.binance.vision/ws",
+          "environment": [
+            "paper"
+          ]
+        },
+         {
+           "Name": "environments",
+           "Value": [
+             {
+               "Name": "lean-cli",
+               "Value": [
+                 {
+                   "Name": "live-mode-brokerage",
+                   "Value": "BinanceBrokerage"
+                 },
+                 {
+                   "Name": "transaction-handler",
+                   "Value": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler"
+                 },
+                 {
+                  "Name": "data-queue-handler",
+                  "Value": "BinanceBrokerage"
+                },
+                {
+                  "Name": "history-provider",
+                  "Value": "BrokerageHistoryProvider"
+                }
+               ]
+             }
+           ]
+         }
+       ]
+     }
+   ]
+}
