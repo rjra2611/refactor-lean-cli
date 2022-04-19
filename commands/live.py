@@ -201,10 +201,14 @@ def options_from_json(options):
             param_decls = (
                 '--' + long,
                 name)
+            if "organization" in opt_params['Name']:
+                default_value = _get_default_value("job-organization-id")
+            else:
+                default_value = _get_default_value(opt_params['Name'])
             attrs = dict(
                 type=map_to_types.get(opt_params['Input-type'], opt_params['Input-type']),
                 help=opt_params['Help'],
-                default=_get_default_value(opt_params['Name'])
+                default=default_value
             )
 
             click.option(*param_decls, **attrs)(f)

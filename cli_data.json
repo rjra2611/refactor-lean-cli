@@ -11,6 +11,19 @@
        "name": "Ronit",
        "installs": true,
        "configurations": [
+         {
+          "Name": "ronit-organization",
+          "Type": "input",
+          "Value": "",
+          "Environment": [
+              "live",
+              "paper"
+          ],
+          "Input-method": "prompt",
+          "Input-type": "string",
+          "Input-data":"organization having subscription of module", 
+          "Help": ""
+         },
         {
           "Name": "binance-use-testnet",
           "Type": "input",

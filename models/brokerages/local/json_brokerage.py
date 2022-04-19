@@ -45,6 +45,9 @@ class JsonBrokerage(LocalBrokerage):
             return [x["Value"] for x in environment_obj if x["Name"] == "live-mode-brokerage"][0]
         return [x["Value"] for x in environment_obj if x["Name"] == "data-queue-handler"][0]
 
+    def get_organzation_id(self) -> str:
+        return [config._value for config in self._lean_configs if "organization" in config._name][0]
+
     def update_value_for_given_config(self, target_name: str, value: Any) -> None:
         idx = [i for i in range(len(self._lean_configs)) if self._lean_configs[i]._name == target_name][0]
         self._lean_configs[idx]._value = value
@@ -61,13 +64,6 @@ class JsonBrokerage(LocalBrokerage):
         if skip_build:
             return self
         
-        api_client = container.api_client()
-        organizations = api_client.organizations.get_all()
-        options = [Option(id=organization.id, label=organization.name) for organization in organizations]
-        organization_id = logger.prompt_list(
-            "Select the organization with the {} module subscription".format(self.get_name()),
-            options
-        )
         logger.info("""
 Create an API key by logging in and accessing the Binance API Management page (https://www.binance.com/en/my/settings/api-management).
         """.strip())
@@ -75,26 +71,21 @@ Create an API key by logging in and accessing the Binance API Management page (h
         for configuration in self._lean_configs:
             if not configuration.is_required_from_user():
                 continue
+            if "organization" in configuration._name:
+                api_client = container.api_client()
+                organizations = api_client.organizations.get_all()
+                options = [Option(id=organization.id, label=organization.name) for organization in organizations]
+                organization_id = logger.prompt_list(
+                    "Select the organization with the {} module subscription".format(self.get_name()),
+                    options
+                )
+                self.update_value_for_given_config(configuration._name, organization_id)
             if configuration._input_method == "prompt-password":
                 user_choice = configuration.AskUserForInput(self._get_default(lean_config, configuration._name), logger)
             else:
                 user_choice = configuration.AskUserForInput(self._get_default(lean_config, configuration._name))
             self.update_value_for_given_config(configuration._name, user_choice)
         
-        organization_id_obj = {
-            "Name": "job-organization-id",
-            "Type": "input",
-            "Value": organization_id,
-            "Environment": [
-                "live",
-                "paper"
-            ],
-            "Input-method": "prompt",
-            "Input-type": "string",
-            "Input-data":f"organization having subscription of {self._name}", 
-            "Help": ""
-        }
-        self._lean_configs.append(InfoConfiguration(organization_id_obj))
         return self
 
     def _configure_environment(self, lean_config: Dict[str, Any], environment_name: str) -> None:
@@ -106,7 +97,7 @@ Create an API key by logging in and accessing the Binance API Management page (h
 
     def configure_credentials(self, lean_config: Dict[str, Any]) -> None:
         
-        lean_config["job-organization-id"] = self.get_config_value_from_name("job-organization-id")
+        lean_config["job-organization-id"] = self.get_organzation_id()
         for configuration in self._lean_configs:
             if configuration._name == "environments":
                 continue
@@ -117,5 +108,5 @@ Create an API key by logging in and accessing the Binance API Management page (h
 
     def ensure_module_installed(self) -> None:
         if not self._is_module_installed and self._installs:
-            container.module_manager().install_module(self._product_id, self.get_config_value_from_name("job-organization-id"))
+            container.module_manager().install_module(self._product_id, self.get_organzation_id())
             self._is_module_installed = True
