@@ -17,18 +17,32 @@ from lean.components.util.logger import Logger
 from lean.container import container
 from lean.models.brokerages.local.json_module_base import LocalBrokerage
 from lean.models.logger import Option
+from lean.models.configuration import Configuration
 
 class JsonBrokerage(LocalBrokerage):
     """A LocalBrokerage implementation for the Binance brokerage."""
     _is_module_installed = False
     _testnet = False
+    _lean_configs = []
 
     def __init__(self, json_brokerage_data: Dict[str, Any]) -> None:
         for key,value in json_brokerage_data.items():
+            if key == "configurations":
+                for config in value:
+                    self._lean_configs.append(Configuration.factory(config))
             setattr(self, self._convert_json_key_to_property(key), value)
                 
     def get_name(self) -> str:
         return self._name
+
+    def update_configs(self, key_and_values: Dict[str, str]):
+        for key, value in key_and_values.items():
+            self.update_value_for_given_config(key,value)
+            
+    def get_live_name(self, is_brokerage) -> str:
+        if is_brokerage:
+            return self._configurations["environments"]["live-mode-brokerage"]
+        return self._configurations["environments"]["data-queue-handler"]
 
     def update_value_for_given_config(self, target_name: str, value: Any) -> None:
         idx = [i for i in range(len(self._configurations)) if self._configurations[i]["Name"] == target_name][0]

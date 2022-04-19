@@ -12,72 +12,92 @@
        "installs": true,
        "configurations": [
         {
-          "Help": "",
-          "required": true,
-          "requirement-type": "confirm",
-          "input-type": "boolean",
-          "requirement-statement":"Use the testnet?", 
           "Name": "binance-use-testnet",
-          "Value": [],
-          "environment": [
+          "Type": "input",
+          "Value": "",
+          "Environment": [
             "live",
             "paper"
-          ]
+          ],
+          "Input-method": "confirm",
+          "Input-type": "boolean",
+          "Input-data":"Use the testnet?", 
+          "Help": ""
         },
         {
-           "Help": "",
-           "required": true,
-           "Name": "binance-api-key",
-           "requirement-type": "prompt",
-           "input-type": "string",
-           "environment": [
-             "live",
-             "paper"
-           ]
+          "Name": "check-choices",
+          "Type": "input",
+          "Value": "",
+          "Environment": [
+            "paper"
+          ],
+          "Input-method": "choices",
+          "Input-type": "string",
+          "Input-data":"Product type",
+          "Input-choices": ["MIS", "CNC", "NRML"], 
+          "Help": ""
         },
         {
-          "Help": "",
-          "required": true,
+          "Name": "binance-api-key",
+          "Type": "input",
+          "Value": "",
+          "Environment": [
+            "live",
+            "paper"
+          ],
+          "Input-method": "prompt",
+          "Input-type": "string",
+          "Input-data":"API-Key", 
+          "Help": ""
+        },
+        {
           "Name": "binance-api-secret",
-          "requirement-type": "prompt_password",
-          "input-type": "string",
-          "environment": [
+          "Type": "input",
+          "Value": "",
+          "Environment": [
             "live",
             "paper"
-          ]
+          ],
+          "Input-method": "prompt-password",
+          "Input-type": "string",
+          "Input-data":"API secret", 
+          "Help": ""
         },
          {
-           "Help": "",
            "Name": "binance-api-url",
+           "Type": "info",
            "Value": "https://api.binance.com",
-           "environment": [
+           "Environment": [
              "live"
            ]
          },
          {
-          "Help": "",
           "Name": "binance-api-url",
+          "Type": "info",
           "Value": "https://testnet.binance.vision",
-          "environment": [
+          "Environment": [
             "paper"
           ]
         },
          {
            "Name": "binance-websocket-url",
+           "Type": "info",
            "Value": "wss://stream.binance.com:9443/ws",
-           "environment": [
+           "Environment": [
              "live"
            ]
          },
          {
           "Name": "binance-websocket-url",
+          "Type": "info",
           "Value": "wss://testnet.binance.vision/ws",
-          "environment": [
+          "Environment": [
             "paper"
           ]
         },
          {
            "Name": "environments",
+           "Type": "info",
            "Value": [
              {
                "Name": "lean-cli",
@@ -100,7 +120,11 @@
                 }
                ]
              }
-           ]
+           ],
+           "Environment": [
+            "live",
+            "paper"
+          ]
          }
        ]
      }
