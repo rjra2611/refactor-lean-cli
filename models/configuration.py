@@ -15,6 +15,9 @@ class Configuration():
         elif config_json_object["Type"] == "input":
             return UserInputConfiguration.factory(config_json_object)
 
+    def is_required_from_user(self):
+        return self._config_type == "input"
+
 class InfoConfiguration(Configuration):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
@@ -38,7 +41,7 @@ class UserInputConfiguration(Configuration, abc.ABC):
             return PromptPasswordUserInput(config_json_object)
 
     @abc.abstractmethod
-    def AskUserForInput():
+    def AskUserForInput(self, default_value):
         return NotImplemented()
 
 class PromptUserInput(UserInputConfiguration):
@@ -64,7 +67,7 @@ class ConfirmUserInput(UserInputConfiguration):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
 
-    def AskUserForInput(self):
+    def AskUserForInput(self, default_value):
         return click.confirm(self._input_data)
 
 class PromptPasswordUserInput(UserInputConfiguration):

@@ -27,51 +27,6 @@ from lean.models.brokerages.local import all_local_brokerages, local_brokerage_d
 from lean.models.errors import MoreInfoError
 from lean.models.logger import Option
 
-# Brokerage -> required configuration properties
-_required_brokerage_properties = {
-    "InteractiveBrokersBrokerage": ["ib-account", "ib-user-name", "ib-password",
-                                    "ib-agent-description", "ib-trading-mode"],
-    "TradierBrokerage": ["tradier-use-sandbox", "tradier-account-id", "tradier-access-token"],
-    "OandaBrokerage": ["oanda-environment", "oanda-access-token", "oanda-account-id"],
-    "GDAXBrokerage": ["gdax-api-secret", "gdax-api-key", "gdax-passphrase"],
-    "BitfinexBrokerage": ["bitfinex-api-secret", "bitfinex-api-key"],
-    "BinanceBrokerage": ["binance-api-secret", "binance-api-key"],
-    "ZerodhaBrokerage": ["zerodha-access-token", "zerodha-api-key", "zerodha-product-type", "zerodha-trading-segment"],
-    "SamcoBrokerage": ["samco-client-id", "samco-client-password", "samco-year-of-birth", "samco-product-type", "samco-trading-segment"],
-    "BloombergBrokerage": ["job-organization-id", "bloomberg-api-type", "bloomberg-environment",
-                           "bloomberg-server-host", "bloomberg-server-port", "bloomberg-emsx-broker"],
-    "AtreyuBrokerage": ["job-organization-id", "atreyu-host", "atreyu-req-port", "atreyu-sub-port",
-                        "atreyu-username", "atreyu-password",
-                        "atreyu-client-id", "atreyu-broker-mpid", "atreyu-locate-rqd"],
-    "TradingTechnologiesBrokerage": ["job-organization-id", "tt-user-name", "tt-session-password", "tt-account-name",
-                                     "tt-rest-app-key", "tt-rest-app-secret", "tt-rest-environment",
-                                     "tt-market-data-sender-comp-id", "tt-market-data-target-comp-id",
-                                     "tt-market-data-host", "tt-market-data-port",
-                                     "tt-order-routing-sender-comp-id", "tt-order-routing-target-comp-id",
-                                     "tt-order-routing-host", "tt-order-routing-port",
-                                     "tt-log-fix-messages"],
-    "KrakenBrokerage": ["kraken-api-key", "kraken-api-secret", "kraken-verification-tier"],
-    "FTXBrokerage": ["ftx-api-key", "ftx-api-secret", "ftx-account-tier", "ftx-exchange-name"]
-}
-
-# Data queue handler -> required configuration properties
-_required_data_queue_handler_properties = {
-    "InteractiveBrokersBrokerage":
-        _required_brokerage_properties["InteractiveBrokersBrokerage"] + ["ib-enable-delayed-streaming-data"],
-    "TradierBrokerage": _required_brokerage_properties["TradierBrokerage"],
-    "OandaBrokerage": _required_brokerage_properties["OandaBrokerage"],
-    "GDAXDataQueueHandler": _required_brokerage_properties["GDAXBrokerage"],
-    "BitfinexBrokerage": _required_brokerage_properties["BitfinexBrokerage"],
-    "BinanceBrokerage": _required_brokerage_properties["BinanceBrokerage"],
-    "ZerodhaBrokerage": _required_brokerage_properties["ZerodhaBrokerage"] + ["zerodha-history-subscription"],
-    "SamcoBrokerage": _required_brokerage_properties["SamcoBrokerage"],
-    "BloombergBrokerage": _required_brokerage_properties["BloombergBrokerage"],
-    "TradingTechnologiesBrokerage": _required_brokerage_properties["TradingTechnologiesBrokerage"],
-    "QuantConnect.ToolBox.IQFeed.IQFeedDataQueueHandler": ["iqfeed-iqconnect", "iqfeed-productName", "iqfeed-version"],
-    "KrakenBrokerage": _required_brokerage_properties["KrakenBrokerage"],
-    "FTXBrokerage": _required_brokerage_properties["FTXBrokerage"]
-}
-
 _environment_skeleton = {
     "live-mode": True,
     "setup-handler": "QuantConnect.Lean.Engine.Setup.BrokerageSetupHandler",
@@ -79,7 +34,6 @@ _environment_skeleton = {
     "data-feed-handler": "QuantConnect.Lean.Engine.DataFeeds.LiveTradingDataFeed",
     "real-time-handler": "QuantConnect.Lean.Engine.RealTime.LiveTradingRealTimeHandler"
 }
-
 
 def _raise_for_missing_properties(lean_config: Dict[str, Any], environment_name: str, lean_config_path: Path) -> None:
     """Raises an error if any required properties are missing.
@@ -97,8 +51,10 @@ def _raise_for_missing_properties(lean_config: Dict[str, Any], environment_name:
     brokerage = environment["live-mode-brokerage"]
     data_queue_handler = environment["data-queue-handler"]
 
-    brokerage_properties = _required_brokerage_properties.get(brokerage, [])
-    data_queue_handler_properties = _required_data_queue_handler_properties.get(data_queue_handler, [])
+    brokerage_configurer = [local_brokerage for local_brokerage in all_local_brokerages if local_brokerage.get_live_name(environment_name, True) == brokerage][0]
+    data_feed_configurer = [local_data_feed for local_data_feed in all_local_data_feeds if local_data_feed.get_live_name(environment_name, False) == data_queue_handler][0]
+    brokerage_properties = brokerage_configurer.get_required_properties()
+    data_queue_handler_properties = data_feed_configurer.get_required_properties()
 
     required_properties = brokerage_properties + data_queue_handler_properties
     missing_properties = [p for p in required_properties if p not in lean_config or lean_config[p] == ""]
@@ -171,7 +127,8 @@ def _configure_lean_config_interactively(lean_config: Dict[str, Any], environmen
         Option(id=data_feed, label=data_feed.get_name()) for data_feed in local_brokerage_data_feeds[brokerage]
     ])
     is_data_feed_brokerage = True if brokerage._name == data_feed._name else False
-    data_feed.build(lean_config, logger, is_data_feed_brokerage).configure(lean_config, environment_name)
+    # TODO: job-organziation id missing when checking if module is installed
+    # data_feed.build(lean_config, logger, is_data_feed_brokerage).configure(lean_config, environment_name)
 
 
 _cached_organizations = None
@@ -230,7 +187,7 @@ def _get_default_value(key: str) -> Optional[Any]:
 
     return value
         
-def options_from_db(options):
+def options_from_json(options):
     map_to_types = dict(
         array=str,
         number=float,
@@ -245,7 +202,7 @@ def options_from_db(options):
                 '--' + long,
                 name)
             attrs = dict(
-                type=map_to_types.get(opt_params['input-type'], opt_params['input-type']),
+                type=map_to_types.get(opt_params['Input-type'], opt_params['Input-type']),
                 help=opt_params['Help'],
                 default=_get_default_value(opt_params['Name'])
             )
@@ -291,7 +248,7 @@ def options_from_db(options):
               is_flag=True,
               default=False,
               help="Pull the LEAN engine image before starting live trading")
-@options_from_db(run_options)
+@options_from_json(run_options)
 def live(project: Path,
         environment: Optional[str],
         output: Optional[Path],
@@ -356,12 +313,14 @@ def live(project: Path,
         brokerage_configurer = [local_brokerage for local_brokerage in all_local_brokerages if local_brokerage.get_name() == brokerage][0]
         required_properties = [str(x).replace('-','_') for x in brokerage_configurer.get_required_properties()]
         ensure_options(required_properties)
-        required_properties = {prop:kwargs[prop] for prop in required_properties}
-        brokerage_configurer.update_properties(required_properties)
+        required_properties_value = {prop.replace('_','-'):kwargs[prop] for prop in required_properties}
+        brokerage_configurer.update_configs(required_properties_value)
         
-        data_feed_configurer = [local_data_feed for local_data_feed in all_local_data_feeds if local_data_feed.get_name()][0]
-        ensure_options(data_feed_configurer.get_required_properties())
-        data_feed_configurer.update_properties()
+        data_feed_configurer = [local_data_feed for local_data_feed in all_local_data_feeds if local_data_feed.get_name() == data_feed][0]
+        required_properties = [str(x).replace('-','_') for x in data_feed_configurer.get_required_properties()]
+        ensure_options(required_properties)
+        required_properties_value = {prop.replace('_','-'):kwargs[prop] for prop in required_properties}
+        data_feed_configurer.update_configs(required_properties_value)
 
         environment_name = "lean-cli"
         lean_config = lean_config_manager.get_complete_lean_config(environment_name, algorithm_file, None)

@@ -12,24 +12,24 @@
 # limitations under the License.
 
 from typing import Any, Dict, List
-import click
 from lean.components.util.logger import Logger
 from lean.container import container
 from lean.models.brokerages.local.json_module_base import LocalBrokerage
 from lean.models.logger import Option
-from lean.models.configuration import Configuration
+from lean.models.configuration import Configuration, InfoConfiguration
 
 class JsonBrokerage(LocalBrokerage):
     """A LocalBrokerage implementation for the Binance brokerage."""
     _is_module_installed = False
     _testnet = False
-    _lean_configs = []
 
     def __init__(self, json_brokerage_data: Dict[str, Any]) -> None:
         for key,value in json_brokerage_data.items():
             if key == "configurations":
+                temp_list = []
                 for config in value:
-                    self._lean_configs.append(Configuration.factory(config))
+                    temp_list.append(Configuration.factory(config))
+                self._lean_configs = temp_list
             setattr(self, self._convert_json_key_to_property(key), value)
                 
     def get_name(self) -> str:
@@ -39,18 +39,22 @@ class JsonBrokerage(LocalBrokerage):
         for key, value in key_and_values.items():
             self.update_value_for_given_config(key,value)
             
-    def get_live_name(self, is_brokerage) -> str:
+    def get_live_name(self, environment_name: str, is_brokerage=False) -> str:
+        environment_obj = [x["Value"] for x in self.get_config_value_from_name("environments") if x["Name"] == environment_name][0]
         if is_brokerage:
-            return self._configurations["environments"]["live-mode-brokerage"]
-        return self._configurations["environments"]["data-queue-handler"]
+            return [x["Value"] for x in environment_obj if x["Name"] == "live-mode-brokerage"][0]
+        return [x["Value"] for x in environment_obj if x["Name"] == "data-queue-handler"][0]
 
     def update_value_for_given_config(self, target_name: str, value: Any) -> None:
-        idx = [i for i in range(len(self._configurations)) if self._configurations[i]["Name"] == target_name][0]
-        self._configurations[idx]["Value"] = value
+        idx = [i for i in range(len(self._lean_configs)) if self._lean_configs[i]._name == target_name][0]
+        self._lean_configs[idx]._value = value
 
     def get_config_value_from_name(self, target_name: str) -> Any:
-        idx = [i for i in range(len(self._configurations)) if self._configurations[i]["Name"] == target_name][0]
-        return self._configurations[idx]["Value"]
+        idx = [i for i in range(len(self._lean_configs)) if self._lean_configs[i]._name == target_name][0]
+        return self._lean_configs[idx]._value
+
+    def get_required_properties(self) -> List[str]:
+        return [config._name for config in self._lean_configs if config.is_required_from_user()]
 
     def _build(self, lean_config: Dict[str, Any], logger: Logger, skip_build: bool = False) -> LocalBrokerage:
         
@@ -68,49 +72,30 @@ class JsonBrokerage(LocalBrokerage):
 Create an API key by logging in and accessing the Binance API Management page (https://www.binance.com/en/my/settings/api-management).
         """.strip())
 
-        for configuration in self._configurations:
-
-            if configuration["Name"] == "environments":
+        for configuration in self._lean_configs:
+            if not configuration.is_required_from_user():
                 continue
-            
-            if "required" in configuration.keys() and configuration["required"]:
-                
-                if configuration["requirement-type"] == "prompt":
-                    user_choice = click.prompt(configuration["Name"], self._get_default(lean_config, configuration["Name"]))
-                
-                elif configuration["requirement-type"] == "prompt_password":
-                    user_choice = logger.prompt_password(configuration["Name"], self._get_default(lean_config, configuration["Name"]))
-                
-                elif configuration["requirement-type"] == "confirm":
-                    user_choice = click.confirm(configuration["requirement-statement"])
-                    self._testnet = user_choice
-                elif configuration["requirement-type"] == "choice":
-                    user_choice = click.prompt(
-                        configuration["Name"],
-                        self._get_default(lean_config, configuration["Name"]),
-                        type=click.Choice(configuration["Value"], case_sensitive=False)
-                    )
-                self.update_value_for_given_config(configuration["Name"], user_choice)
+            if configuration._input_method == "prompt-password":
+                user_choice = configuration.AskUserForInput(self._get_default(lean_config, configuration._name), logger)
+            else:
+                user_choice = configuration.AskUserForInput(self._get_default(lean_config, configuration._name))
+            self.update_value_for_given_config(configuration._name, user_choice)
         
         organization_id_obj = {
-           "Help": "",
-           "required": True,
-           "Name": "job-organization-id",
-           "Value": organization_id,
-           "requirement-type": "prompt",
-           "environment": [
-             "live",
-             "paper"
-           ]
+            "Name": "job-organization-id",
+            "Type": "input",
+            "Value": organization_id,
+            "Environment": [
+                "live",
+                "paper"
+            ],
+            "Input-method": "prompt",
+            "Input-type": "string",
+            "Input-data":f"organization having subscription of {self._name}", 
+            "Help": ""
         }
-        self._configurations.append(organization_id_obj)
+        self._lean_configs.append(InfoConfiguration(organization_id_obj))
         return self
-
-    def get_required_properties(self) -> List[str]:
-        return [config["Name"] for config in self._configurations if "required" in config.keys() and config["required"]]
-    
-    def update_properties(self, properties: Dict[str, str]):
-        raise NotImplementedError()
 
     def _configure_environment(self, lean_config: Dict[str, Any], environment_name: str) -> None:
         self.ensure_module_installed()
@@ -120,20 +105,15 @@ Create an API key by logging in and accessing the Binance API Management page (h
             lean_config["environments"][environment_name][environment_config["Name"]] = environment_config["Value"]
 
     def configure_credentials(self, lean_config: Dict[str, Any]) -> None:
-        lean_config["job-organization-id"] = self.get_config_value_from_name("job-organization-id")
-        save_properties_keys = ["job-organization-id"]
-
-        for configuration in self._configurations:
-            if configuration["Name"] == "environments":
-                continue
-            elif (self._testnet and not "paper" in configuration["environment"]) or (not self._testnet and not "live" in configuration["environment"]):
-                continue
-            elif "required" in configuration.keys() and configuration["required"]:
-                save_properties_keys.append(configuration["Name"])
-            
-            lean_config[configuration["Name"]] = configuration["Value"]
         
-        self._save_properties(lean_config, save_properties_keys)
+        lean_config["job-organization-id"] = self.get_config_value_from_name("job-organization-id")
+        for configuration in self._lean_configs:
+            if configuration._name == "environments":
+                continue
+            elif (self._testnet and not "paper" in configuration._envrionment) or (not self._testnet and not "live" in configuration._envrionment):
+                continue
+            lean_config[configuration._name] = configuration._value
+        self._save_properties(lean_config, self.get_required_properties())
 
     def ensure_module_installed(self) -> None:
         if not self._is_module_installed and self._installs:
