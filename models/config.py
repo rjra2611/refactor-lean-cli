@@ -31,6 +31,13 @@ class LeanConfigConfigurer(abc.ABC):
         """
         raise NotImplementedError()
 
+    def get_live_name(cls, environment_name: str, is_brokerage=True) -> str:
+        """Returns the user-friendly name which users can identify this object by.
+
+        :return: the user-friendly name to display to users
+        """
+        return ""
+
     @abc.abstractmethod
     def configure(self, lean_config: Dict[str, Any], environment_name: str) -> None:
         """Configures the Lean configuration for this brokerage.
