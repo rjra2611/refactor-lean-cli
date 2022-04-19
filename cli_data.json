@@ -25,19 +25,6 @@
           "Help": ""
         },
         {
-          "Name": "check-choices",
-          "Type": "input",
-          "Value": "",
-          "Environment": [
-            "paper"
-          ],
-          "Input-method": "choices",
-          "Input-type": "string",
-          "Input-data":"Product type",
-          "Input-choices": ["MIS", "CNC", "NRML"], 
-          "Help": ""
-        },
-        {
           "Name": "binance-api-key",
           "Type": "input",
           "Value": "",
