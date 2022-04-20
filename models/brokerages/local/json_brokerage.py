@@ -42,10 +42,14 @@ class JsonBrokerage(LocalBrokerage):
             self.update_value_for_given_config(key,value)
             
     def get_live_name(self, environment_name: str, is_brokerage=False) -> str:
-        environment_obj = [x["Value"] for x in self.get_config_value_from_name("environments") if x["Name"] == environment_name][0]
+        environment_obj = self.get_environment_values_from_name(environment_name)
         if is_brokerage:
             return [x["Value"] for x in environment_obj if x["Name"] == "live-mode-brokerage"][0]
         return [x["Value"] for x in environment_obj if x["Name"] == "data-queue-handler"][0]
+
+    def get_environment_values_from_name(self, target_env: str): 
+        env_config = [config for config in self._lean_configs if config._config_type == "env"][0]
+        return env_config._env_and_values[target_env]
 
     def get_organzation_id(self) -> str:
         return [config._value for config in self._lean_configs if self._organization_name == config._name][0]
@@ -97,8 +101,7 @@ Create an API key by logging in and accessing the Binance API Management page (h
             return 
         self.ensure_module_installed()
 
-        environment_obj = [x["Value"] for x in self.get_config_value_from_name("environments") if x["Name"] == environment_name][0]
-        for environment_config in environment_obj:
+        for environment_config in self.get_environment_values_from_name(environment_name):
             lean_config["environments"][environment_name][environment_config["Name"]] = environment_config["Value"]
 
     def configure_credentials(self, lean_config: Dict[str, Any]) -> None:
@@ -106,7 +109,7 @@ Create an API key by logging in and accessing the Binance API Management page (h
             return 
         lean_config["job-organization-id"] = self.get_organzation_id()
         for configuration in self._lean_configs:
-            if configuration._name == "environments":
+            if configuration._config_type == "env":
                 continue
             elif (self._testnet and not "paper" in configuration._envrionment) or (not self._testnet and not "live" in configuration._envrionment):
                 continue

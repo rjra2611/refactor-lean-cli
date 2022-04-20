@@ -97,7 +97,7 @@
         },
          {
            "Name": "environments",
-           "Type": "info",
+           "Type": "env",
            "Value": [
              {
                "Name": "lean-cli",

@@ -18,6 +18,8 @@ class Configuration(abc.ABC):
             return InfoConfiguration(config_json_object)
         elif config_json_object["Type"] == "input":
             return UserInputConfiguration.factory(config_json_object)
+        elif config_json_object["Type"] == "env":
+            return EnvConfiguration(config_json_object)
 
 class InfoConfiguration(Configuration):
     def __init__(self, config_json_object):
@@ -26,6 +28,14 @@ class InfoConfiguration(Configuration):
     def is_required_from_user(self):
         return False
 
+class EnvConfiguration(Configuration):
+    def __init__(self, config_json_object):
+        super().__init__(config_json_object)
+        self._env_and_values = {env_obj["Name"]:env_obj["Value"] for env_obj in self._value}
+
+    def is_required_from_user(self):
+        return False
+        
 class UserInputConfiguration(Configuration, abc.ABC):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
