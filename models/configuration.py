@@ -9,7 +9,7 @@ class Configuration(abc.ABC):
         self._value = config_json_object["Value"]
         self._envrionment = config_json_object["Environment"]
         self._is_type_configurations_env = type(self) is ConfigurationsEnvConfiguration
-        self._is_type_brokerage_env = self._config_type == "brokerage-env"
+        self._is_type_brokerage_env = type(self) is BrokerageEnvConfiguration
 
     @abc.abstractmethod
     def is_required_from_user(self):
@@ -18,8 +18,10 @@ class Configuration(abc.ABC):
     def factory(config_json_object):
         if config_json_object["Type"] in ["info" , "configurations-env"] :
             return InfoConfiguration.factory(config_json_object)
-        elif config_json_object["Type"] in ["input", "brokerage-env"]:
+        elif config_json_object["Type"] == "input":
             return UserInputConfiguration.factory(config_json_object)
+        elif config_json_object["Type"] == "brokerage-env":
+            return BrokerageEnvConfiguration(config_json_object)
 
 class InfoConfiguration(Configuration):
     def __init__(self, config_json_object):
@@ -96,3 +98,24 @@ class PromptPasswordUserInput(UserInputConfiguration):
 
     def AskUserForInput(self, default_value, logger: Logger):
         return logger.prompt_password(self._input_data, default_value)
+
+class BrokerageEnvConfiguration(PromptUserInput, ConfirmUserInput):
+    def __init__(self, config_json_object):
+        super().__init__(config_json_object)
+
+    @property
+    def _is_paper_environment(self):
+        if self._input_method == "confirm":
+            return self._value
+        elif self._input_method == "prompt":
+            return True if self._value in ["Trade", "live"] else False
+        else:
+            raise(f"Undefined input method type {self._input_method}")
+            
+    def AskUserForInput(self, default_value, logger: Logger):
+        if self._input_method == "confirm":
+            return ConfirmUserInput.AskUserForInput(self, default_value, logger)
+        elif self._input_method == "prompt":
+            return PromptUserInput.AskUserForInput(self, default_value, logger)
+        else:
+            raise(f"Undefined input method type {self._input_method}")

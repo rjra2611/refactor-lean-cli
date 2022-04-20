@@ -38,7 +38,7 @@ class JsonBrokerage(LocalBrokerage):
 
     @property
     def _testnet(self):
-        return [config for config in self._lean_configs if config._is_type_brokerage_env][0]._value
+        return not [config for config in self._lean_configs if config._is_type_brokerage_env][0]._is_paper_environment
 
     def update_configs(self, key_and_values: Dict[str, str]):
         for key, value in key_and_values.items():
