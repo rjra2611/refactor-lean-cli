@@ -55,7 +55,7 @@ class PromptUserInput(UserInputConfiguration):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
 
-    def AskUserForInput(self, default_value):
+    def AskUserForInput(self, default_value, logger: Logger):
         return click.prompt(self._input_data, default_value)
 
 class ChoiceUserInput(UserInputConfiguration):
@@ -63,7 +63,7 @@ class ChoiceUserInput(UserInputConfiguration):
         super().__init__(config_json_object)
         self._choices = config_json_object["Input-choices"]
 
-    def AskUserForInput(self, default_value):
+    def AskUserForInput(self, default_value, logger: Logger):
         return click.prompt(
                     self._input_data,
                     default_value,
@@ -74,7 +74,7 @@ class ConfirmUserInput(UserInputConfiguration):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
 
-    def AskUserForInput(self, default_value):
+    def AskUserForInput(self, default_value, logger: Logger):
         return click.confirm(self._input_data)
 
 class PromptPasswordUserInput(UserInputConfiguration):

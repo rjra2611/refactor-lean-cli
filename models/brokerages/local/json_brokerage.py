@@ -80,11 +80,9 @@ Create an API key by logging in and accessing the Binance API Management page (h
                     "Select the organization with the {} module subscription".format(self.get_name()),
                     options
                 )
-                self.update_value_for_given_config(configuration._name, organization_id)
-            if configuration._input_method == "prompt-password":
-                user_choice = configuration.AskUserForInput(self._get_default(lean_config, configuration._name), logger)
+                user_choice = organization_id
             else:
-                user_choice = configuration.AskUserForInput(self._get_default(lean_config, configuration._name))
+                user_choice = configuration.AskUserForInput(self._get_default(lean_config, configuration._name), logger)
             self.update_value_for_given_config(configuration._name, user_choice)
         
         return self
