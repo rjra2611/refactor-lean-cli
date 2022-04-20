@@ -100,7 +100,7 @@ Create an API key by logging in and accessing the Binance API Management page (h
         return self
 
     def _configure_environment(self, lean_config: Dict[str, Any], environment_name: str) -> None:
-        if self._is_installed_and_build:
+        if hasattr(self, '_is_installed_and_build') and self._is_installed_and_build:
             return 
         self.ensure_module_installed()
 
@@ -108,7 +108,7 @@ Create an API key by logging in and accessing the Binance API Management page (h
             lean_config["environments"][environment_name][environment_config["Name"]] = environment_config["Value"]
 
     def configure_credentials(self, lean_config: Dict[str, Any]) -> None:
-        if self._is_installed_and_build:
+        if hasattr(self, '_is_installed_and_build') and self._is_installed_and_build:
             return 
         lean_config["job-organization-id"] = self.get_organzation_id()
         for configuration in self._lean_configs:
