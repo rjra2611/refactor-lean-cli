@@ -11,8 +11,6 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from email.policy import default
-from operator import mod
 import subprocess
 import time
 from datetime import datetime
@@ -188,24 +186,30 @@ def _get_default_value(key: str) -> Optional[Any]:
 
     return value
         
-def options_from_json(click_options):
-    map_to_types = dict(
-        array=str,
-        number=float,
-        string=str,
-        boolean=bool
-    )
+def options_from_json(configurations):
+    map_to_types = {
+        "array": str,
+        "number": float,
+        "string": str,
+        "boolean": bool,
+        "path-parameter": PathParameter(exists=True, file_okay=True, dir_okay=False)
+    }
+
     def decorator(f):
-        for click_option in reversed(click_options):
-            long = click_option._name
-            name = str(click_option._name).replace('-','_')
+        for configuration in reversed(configurations):
+            long = configuration._name
+            name = str(configuration._name).replace('-','_')
             param_decls = (
                 '--' + long,
                 name)
+            if configuration._input_method == "choice":
+                click_option_type = click.Choice(configuration._choices, case_sensitive=False)
+            else:
+                click_option_type = map_to_types.get(configuration._input_type, configuration._input_type) 
             attrs = dict(
-                type=map_to_types.get(click_option._input_type, click_option._input_type),
-                help=click_option._help,
-                default=_get_default_value(click_option._default_property_name) 
+                type=click_option_type,
+                help=configuration._help,
+                default=_get_default_value(configuration._default_property_name) 
             )
             click.option(*param_decls, **attrs)(f)
         return f
@@ -214,7 +218,7 @@ def options_from_json(click_options):
 run_options = {}
 for module in all_local_brokerages + all_local_data_feeds:
     # TODO: current only works for json classes
-    # TODO: input config name accross all modules should be unique, because we are using them as options
+    # NOTE: input config name accross all modules should be unique, because we are using them as options
     if not isinstance(module, JsonBrokerage):
         continue
     for config in module.get_required_configs():
