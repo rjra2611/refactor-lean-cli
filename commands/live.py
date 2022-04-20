@@ -56,7 +56,7 @@ def _raise_for_missing_properties(lean_config: Dict[str, Any], environment_name:
     brokerage_properties = brokerage_configurer.get_required_properties()
     data_queue_handler_properties = data_feed_configurer.get_required_properties()
 
-    required_properties = brokerage_properties + data_queue_handler_properties
+    required_properties = list(set(brokerage_properties + data_queue_handler_properties))
     missing_properties = [p for p in required_properties if p not in lean_config or lean_config[p] == ""]
     missing_properties = set(missing_properties)
     if len(missing_properties) == 0:
