@@ -25,19 +25,6 @@
           "Help": "The name or id of the organization with the Ronit module subscription"
          },
         {
-          "Name": "binance-use-testnet",
-          "Type": "brokerage-env",
-          "Value": "",
-          "Environment": [
-            "live",
-            "paper"
-          ],
-          "Input-method": "confirm",
-          "Input-type": "boolean",
-          "Input-data":"Use the testnet?", 
-          "Help": "Whether the testnet should be used"
-        },
-        {
           "Name": "binance-api-key",
           "Type": "input",
           "Value": "",
@@ -62,6 +49,19 @@
           "Input-type": "string",
           "Input-data":"API secret", 
           "Help": "Your Binance API secret"
+        },
+        {
+          "Name": "binance-use-testnet",
+          "Type": "brokerage-env",
+          "Value": "",
+          "Environment": [
+            "live",
+            "paper"
+          ],
+          "Input-method": "confirm",
+          "Input-type": "boolean",
+          "Input-data":"Use the testnet?", 
+          "Help": "Whether the testnet should be used"
         },
          {
            "Name": "binance-api-url",
