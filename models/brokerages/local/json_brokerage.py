@@ -16,7 +16,7 @@ from lean.components.util.logger import Logger
 from lean.container import container
 from lean.models.brokerages.local.json_module_base import LocalBrokerage
 from lean.models.logger import Option
-from lean.models.configuration import Configuration, InfoConfiguration
+from lean.models.configuration import Configuration
 
 class JsonBrokerage(LocalBrokerage):
     """A LocalBrokerage implementation for the Binance brokerage."""
@@ -31,6 +31,7 @@ class JsonBrokerage(LocalBrokerage):
                     temp_list.append(Configuration.factory(config))
                 self._lean_configs = temp_list
             setattr(self, self._convert_json_key_to_property(key), value)
+        self._organization_name = f"{self._name.lower()}-organization"
                 
     def get_name(self) -> str:
         return self._name
@@ -46,7 +47,7 @@ class JsonBrokerage(LocalBrokerage):
         return [x["Value"] for x in environment_obj if x["Name"] == "data-queue-handler"][0]
 
     def get_organzation_id(self) -> str:
-        return [config._value for config in self._lean_configs if "organization" in config._name][0]
+        return [config._value for config in self._lean_configs if self._organization_name == config._name][0]
 
     def update_value_for_given_config(self, target_name: str, value: Any) -> None:
         idx = [i for i in range(len(self._lean_configs)) if self._lean_configs[i]._name == target_name][0]
@@ -71,7 +72,7 @@ Create an API key by logging in and accessing the Binance API Management page (h
         for configuration in self._lean_configs:
             if not configuration.is_required_from_user():
                 continue
-            if "organization" in configuration._name:
+            if self._organization_name == configuration._name:
                 api_client = container.api_client()
                 organizations = api_client.organizations.get_all()
                 options = [Option(id=organization.id, label=organization.name) for organization in organizations]
