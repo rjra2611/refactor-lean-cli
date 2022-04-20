@@ -129,8 +129,7 @@ def _configure_lean_config_interactively(lean_config: Dict[str, Any], environmen
         Option(id=data_feed, label=data_feed.get_name()) for data_feed in local_brokerage_data_feeds[brokerage]
     ])
     is_data_feed_brokerage = True if brokerage._name == data_feed._name else False
-    # TODO: job-organziation id missing when checking if module is installed
-    # data_feed.build(lean_config, logger, is_data_feed_brokerage).configure(lean_config, environment_name)
+    data_feed.build(lean_config, logger, is_data_feed_brokerage).configure(lean_config, environment_name)
 
 
 _cached_organizations = None

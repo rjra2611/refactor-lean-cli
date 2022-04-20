@@ -66,7 +66,8 @@ class JsonBrokerage(LocalBrokerage):
 
     def _build(self, lean_config: Dict[str, Any], logger: Logger, skip_build: bool = False) -> LocalBrokerage:
         
-        if skip_build:
+        self._is_installed_and_build = skip_build
+        if self._is_installed_and_build:
             return self
         
         logger.info("""
@@ -92,6 +93,8 @@ Create an API key by logging in and accessing the Binance API Management page (h
         return self
 
     def _configure_environment(self, lean_config: Dict[str, Any], environment_name: str) -> None:
+        if self._is_installed_and_build:
+            return 
         self.ensure_module_installed()
 
         environment_obj = [x["Value"] for x in self.get_config_value_from_name("environments") if x["Name"] == environment_name][0]
@@ -99,7 +102,8 @@ Create an API key by logging in and accessing the Binance API Management page (h
             lean_config["environments"][environment_name][environment_config["Name"]] = environment_config["Value"]
 
     def configure_credentials(self, lean_config: Dict[str, Any]) -> None:
-        
+        if self._is_installed_and_build:
+            return 
         lean_config["job-organization-id"] = self.get_organzation_id()
         for configuration in self._lean_configs:
             if configuration._name == "environments":
