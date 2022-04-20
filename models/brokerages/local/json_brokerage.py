@@ -17,6 +17,7 @@ from lean.container import container
 from lean.models.brokerages.local.json_module_base import LocalBrokerage
 from lean.models.logger import Option
 from lean.models.configuration import Configuration
+import copy
 
 class JsonBrokerage(LocalBrokerage):
     """A LocalBrokerage implementation for the Binance brokerage."""
@@ -59,6 +60,9 @@ class JsonBrokerage(LocalBrokerage):
 
     def get_required_properties(self) -> List[str]:
         return [config._name for config in self._lean_configs if config.is_required_from_user()]
+
+    def get_required_configs(self) -> List[str]:
+        return [copy.copy(config) for config in self._lean_configs if config.is_required_from_user()]
 
     def _build(self, lean_config: Dict[str, Any], logger: Logger, skip_build: bool = False) -> LocalBrokerage:
         

@@ -12,6 +12,7 @@
 # limitations under the License.
 
 from email.policy import default
+from operator import mod
 import subprocess
 import time
 from datetime import datetime
@@ -23,9 +24,10 @@ import click
 from lean.click import LeanCommand, PathParameter, ensure_options
 from lean.constants import DEFAULT_ENGINE_IMAGE, GUI_PRODUCT_INSTALL_ID
 from lean.container import container
-from lean.models.brokerages.local import all_local_brokerages, local_brokerage_data_feeds, all_local_data_feeds, run_options
+from lean.models.brokerages.local import all_local_brokerages, local_brokerage_data_feeds, all_local_data_feeds
 from lean.models.errors import MoreInfoError
 from lean.models.logger import Option
+from lean.models.brokerages.local.json_brokerage import JsonBrokerage
 
 _environment_skeleton = {
     "live-mode": True,
@@ -187,7 +189,7 @@ def _get_default_value(key: str) -> Optional[Any]:
 
     return value
         
-def options_from_json(options):
+def options_from_json(click_options):
     map_to_types = dict(
         array=str,
         number=float,
@@ -195,25 +197,35 @@ def options_from_json(options):
         boolean=bool
     )
     def decorator(f):
-        for opt_params in reversed(options):
-            long = opt_params['Name']
-            name = str(opt_params['Name']).replace('-','_')
+        for click_option in reversed(click_options):
+            long = click_option._name
+            name = str(click_option._name).replace('-','_')
             param_decls = (
                 '--' + long,
                 name)
-            if "organization" in opt_params['Name']:
-                default_value = _get_default_value("job-organization-id")
-            else:
-                default_value = _get_default_value(opt_params['Name'])
             attrs = dict(
-                type=map_to_types.get(opt_params['Input-type'], opt_params['Input-type']),
-                help=opt_params['Help'],
-                default=default_value
+                type=map_to_types.get(click_option._input_type, click_option._input_type),
+                help=click_option._help,
+                default=_get_default_value(click_option._default_property_name) 
             )
-
             click.option(*param_decls, **attrs)(f)
         return f
     return decorator
+
+run_options = {}
+for module in all_local_brokerages + all_local_data_feeds:
+    # TODO: current only works for json classes
+    # TODO: input config name accross all modules should be unique, because we are using them as options
+    if not isinstance(module, JsonBrokerage):
+        continue
+    for config in module.get_required_configs():
+        if config._name in run_options:
+            continue
+        default_property_name = config._name
+        if module._organization_name == config._name:
+            default_property_name = "job-organization-id"
+        setattr(config, '_default_property_name', default_property_name)
+        run_options[config._name] = config
 
 @click.command(cls=LeanCommand, requires_lean_config=True, requires_docker=True)
 @click.argument("project", type=PathParameter(exists=True, file_okay=True, dir_okay=True))
@@ -252,7 +264,7 @@ def options_from_json(options):
               is_flag=True,
               default=False,
               help="Pull the LEAN engine image before starting live trading")
-@options_from_json(run_options)
+@options_from_json(list(run_options.values()))
 def live(project: Path,
         environment: Optional[str],
         output: Optional[Path],
