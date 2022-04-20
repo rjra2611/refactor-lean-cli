@@ -8,34 +8,37 @@ class Configuration(abc.ABC):
         self._config_type = config_json_object["Type"]
         self._value = config_json_object["Value"]
         self._envrionment = config_json_object["Environment"]
+        self._is_type_configurations_env = type(self) is ConfigurationsEnvConfiguration
+        self._is_type_brokerage_env = self._config_type == "brokerage-env"
 
     @abc.abstractmethod
     def is_required_from_user(self):
         return NotImplemented()
 
     def factory(config_json_object):
-        if config_json_object["Type"] == "info":
-            return InfoConfiguration(config_json_object)
-        elif config_json_object["Type"] == "input":
+        if config_json_object["Type"] in ["info" , "configurations-env"] :
+            return InfoConfiguration.factory(config_json_object)
+        elif config_json_object["Type"] in ["input", "brokerage-env"]:
             return UserInputConfiguration.factory(config_json_object)
-        elif config_json_object["Type"] == "env":
-            return EnvConfiguration(config_json_object)
 
 class InfoConfiguration(Configuration):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
 
+    def factory(config_json_object):
+        if config_json_object["Type"] == "configurations-env":
+            return ConfigurationsEnvConfiguration(config_json_object)
+        else:
+            return InfoConfiguration(config_json_object)
+
     def is_required_from_user(self):
         return False
-
-class EnvConfiguration(Configuration):
+ 
+class ConfigurationsEnvConfiguration(InfoConfiguration):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
         self._env_and_values = {env_obj["Name"]:env_obj["Value"] for env_obj in self._value}
 
-    def is_required_from_user(self):
-        return False
-        
 class UserInputConfiguration(Configuration, abc.ABC):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)

@@ -26,7 +26,7 @@
          },
         {
           "Name": "binance-use-testnet",
-          "Type": "input",
+          "Type": "brokerage-env",
           "Value": "",
           "Environment": [
             "live",
@@ -97,7 +97,7 @@
         },
          {
            "Name": "environments",
-           "Type": "env",
+           "Type": "configurations-env",
            "Value": [
              {
                "Name": "lean-cli",
