@@ -22,7 +22,7 @@
           "Input-method": "prompt",
           "Input-type": "string",
           "Input-data":"organization having subscription of module", 
-          "Help": ""
+          "Help": "The name or id of the organization with the Ronit module subscription"
          },
         {
           "Name": "binance-use-testnet",
@@ -35,7 +35,7 @@
           "Input-method": "confirm",
           "Input-type": "boolean",
           "Input-data":"Use the testnet?", 
-          "Help": ""
+          "Help": "Whether the testnet should be used"
         },
         {
           "Name": "binance-api-key",
@@ -48,7 +48,7 @@
           "Input-method": "prompt",
           "Input-type": "string",
           "Input-data":"API-Key", 
-          "Help": ""
+          "Help": "Your Binance API key"
         },
         {
           "Name": "binance-api-secret",
@@ -61,7 +61,7 @@
           "Input-method": "prompt-password",
           "Input-type": "string",
           "Input-data":"API secret", 
-          "Help": ""
+          "Help": "Your Binance API secret"
         },
          {
            "Name": "binance-api-url",
