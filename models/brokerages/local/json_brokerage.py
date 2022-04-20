@@ -22,7 +22,6 @@ import copy
 class JsonBrokerage(LocalBrokerage):
     """A LocalBrokerage implementation for the Binance brokerage."""
     _is_module_installed = False
-    _testnet = False
 
     def __init__(self, json_brokerage_data: Dict[str, Any]) -> None:
         for key,value in json_brokerage_data.items():
@@ -36,6 +35,10 @@ class JsonBrokerage(LocalBrokerage):
                 
     def get_name(self) -> str:
         return self._name
+
+    @property
+    def _testnet(self):
+        return [config for config in self._lean_configs if config._is_type_brokerage_env][0]._value
 
     def update_configs(self, key_and_values: Dict[str, str]):
         for key, value in key_and_values.items():
