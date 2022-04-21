@@ -51,8 +51,8 @@ def _raise_for_missing_properties(lean_config: Dict[str, Any], environment_name:
     brokerage = environment["live-mode-brokerage"]
     data_queue_handler = environment["data-queue-handler"]
 
-    brokerage_configurer = [local_brokerage for local_brokerage in all_local_brokerages if local_brokerage.get_live_name(environment_name, True) == brokerage][0]
-    data_feed_configurer = [local_data_feed for local_data_feed in all_local_data_feeds if local_data_feed.get_live_name(environment_name, False) == data_queue_handler][0]
+    [brokerage_configurer] = [local_brokerage for local_brokerage in all_local_brokerages if local_brokerage.get_live_name(environment_name, True) == brokerage]
+    [data_feed_configurer] = [local_data_feed for local_data_feed in all_local_data_feeds if local_data_feed.get_live_name(environment_name, False) == data_queue_handler]
     brokerage_properties = brokerage_configurer.get_required_properties()
     data_queue_handler_properties = data_feed_configurer.get_required_properties()
 
@@ -327,13 +327,13 @@ def live(project: Path,
     elif brokerage is not None or data_feed is not None:
         ensure_options(["brokerage", "data_feed"])
 
-        brokerage_configurer = [local_brokerage for local_brokerage in all_local_brokerages if local_brokerage.get_name() == brokerage][0]
+        [brokerage_configurer] = [local_brokerage for local_brokerage in all_local_brokerages if local_brokerage.get_name() == brokerage]
         required_properties = [brokerage_configurer._convert_lean_key_to_variable(prop) for prop in brokerage_configurer.get_required_properties()]
         ensure_options(required_properties)
         required_properties_value = {brokerage_configurer._convert_variable_to_lean_key(prop) : kwargs[prop] for prop in required_properties}
         brokerage_configurer.update_configs(required_properties_value)
         
-        data_feed_configurer = [local_data_feed for local_data_feed in all_local_data_feeds if local_data_feed.get_name() == data_feed][0]
+        [data_feed_configurer] = [local_data_feed for local_data_feed in all_local_data_feeds if local_data_feed.get_name() == data_feed]
         required_properties = [data_feed_configurer._convert_lean_key_to_variable(prop) for prop in data_feed_configurer.get_required_properties()]
         ensure_options(required_properties)
         required_properties_value = {data_feed_configurer._convert_variable_to_lean_key(prop) : kwargs[prop] for prop in required_properties}

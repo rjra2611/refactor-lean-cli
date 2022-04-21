@@ -39,7 +39,8 @@ class JsonBrokerage(LocalBrokerage):
 
     @property
     def _testnet(self):
-        return not [config for config in self._lean_configs if config._is_type_brokerage_env][0]._is_paper_environment
+        [brokerage_env_config] = [config for config in self._lean_configs if config._is_type_brokerage_env]
+        return brokerage_env_config._is_paper_environment
 
     def update_configs(self, key_and_values: Dict[str, str]):
         for key, value in key_and_values.items():
@@ -48,22 +49,25 @@ class JsonBrokerage(LocalBrokerage):
     def get_live_name(self, environment_name: str, is_brokerage=False) -> str:
         environment_obj = self.get_configurations_env_values_from_name(environment_name)
         if is_brokerage:
-            return [x["Value"] for x in environment_obj if x["Name"] == "live-mode-brokerage"][0]
-        return [x["Value"] for x in environment_obj if x["Name"] == "data-queue-handler"][0]
+            [live_name] = [x["Value"] for x in environment_obj if x["Name"] == "live-mode-brokerage"]
+        else:
+            [live_name] = [x["Value"] for x in environment_obj if x["Name"] == "data-queue-handler"]
+        return live_name
 
     def get_configurations_env_values_from_name(self, target_env: str): 
-        env_config = [config for config in self._lean_configs if config._is_type_configurations_env][0]
+        [env_config] = [config for config in self._lean_configs if config._is_type_configurations_env]
         return env_config._env_and_values[target_env]
 
     def get_organzation_id(self) -> str:
-        return [config._value for config in self._lean_configs if self._organization_name == config._name][0]
+        [organization_id] = [config._value for config in self._lean_configs if self._organization_name == config._name]
+        return organization_id
 
     def update_value_for_given_config(self, target_name: str, value: Any) -> None:
-        idx = [i for i in range(len(self._lean_configs)) if self._lean_configs[i]._name == target_name][0]
+        [idx] = [i for i in range(len(self._lean_configs)) if self._lean_configs[i]._name == target_name]
         self._lean_configs[idx]._value = value
 
     def get_config_value_from_name(self, target_name: str) -> Any:
-        idx = [i for i in range(len(self._lean_configs)) if self._lean_configs[i]._name == target_name][0]
+        [idx] = [i for i in range(len(self._lean_configs)) if self._lean_configs[i]._name == target_name]
         return self._lean_configs[idx]._value
 
     def get_required_properties(self) -> List[str]:
