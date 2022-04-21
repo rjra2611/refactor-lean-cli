@@ -31,7 +31,7 @@ class JsonBrokerage(LocalBrokerage):
                     temp_list.append(Configuration.factory(config))
                 self._lean_configs = temp_list
                 continue
-            setattr(self, self._convert_json_key_to_property(key), value)
+            setattr(self, self._convert_lean_key_to_attribute(key), value)
         self._organization_name = f"{self._name.lower()}-organization"
                 
     def get_name(self) -> str:

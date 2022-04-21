@@ -328,15 +328,15 @@ def live(project: Path,
         ensure_options(["brokerage", "data_feed"])
 
         brokerage_configurer = [local_brokerage for local_brokerage in all_local_brokerages if local_brokerage.get_name() == brokerage][0]
-        required_properties = [str(x).replace('-','_') for x in brokerage_configurer.get_required_properties()]
+        required_properties = [brokerage_configurer._convert_lean_key_to_variable(prop) for prop in brokerage_configurer.get_required_properties()]
         ensure_options(required_properties)
-        required_properties_value = {prop.replace('_','-'):kwargs[prop] for prop in required_properties}
+        required_properties_value = {brokerage_configurer._convert_variable_to_lean_key(prop) : kwargs[prop] for prop in required_properties}
         brokerage_configurer.update_configs(required_properties_value)
         
         data_feed_configurer = [local_data_feed for local_data_feed in all_local_data_feeds if local_data_feed.get_name() == data_feed][0]
-        required_properties = [str(x).replace('-','_') for x in data_feed_configurer.get_required_properties()]
+        required_properties = [data_feed_configurer._convert_lean_key_to_variable(prop) for prop in data_feed_configurer.get_required_properties()]
         ensure_options(required_properties)
-        required_properties_value = {prop.replace('_','-'):kwargs[prop] for prop in required_properties}
+        required_properties_value = {data_feed_configurer._convert_variable_to_lean_key(prop) : kwargs[prop] for prop in required_properties}
         data_feed_configurer.update_configs(required_properties_value)
 
         environment_name = "lean-cli"

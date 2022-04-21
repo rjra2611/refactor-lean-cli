@@ -76,21 +76,26 @@ class LeanConfigConfigurer(abc.ABC):
         from lean.container import container
         container.lean_config_manager().set_properties({key: lean_config[key] for key in properties})
 
-    def _convert_json_key_to_property(self, json_key:str) -> str:
-        """Persistently save properties in the Lean configuration.
+    def _convert_lean_key_to_variable(self, lean_key:str) -> str:
+        """Replaces hyphens with underscore to follow python naming convention.
 
-        :param lean_config: the dict containing all properties
-        :param properties: the names of the properties to save persistently
+        :param lean_key: string that uses hyphnes as separator. Used in lean config
         """
-        return f"_{'_'.join(json_key.split('-'))}"
+        return lean_key.replace('-','_')
 
-    def _convert_property_to_json_key(self, property_key:str) -> str:
-        """Persistently save properties in the Lean configuration.
+    def _convert_lean_key_to_attribute(self, lean_key:str) -> str:
+        """Replaces hyphens with underscore to follow pattern of private attribute.
 
-        :param lean_config: the dict containing all properties
-        :param properties: the names of the properties to save persistently
+        :param lean_key: string that uses hyphnes as separator. Used in lean config
         """
-        return property_key
+        return "_" + self._convert_lean_key_to_variable(lean_key)
+
+    def _convert_variable_to_lean_key(self, variable_key:str) -> str:
+        """Replaces underscore with hyphens to follow lean config naming convention.
+
+        :param variable_key: string that uses underscore as separator as per python convention.
+        """
+        return variable_key.replace('_','-')
 
 class DebuggingMethod(Enum):
     """The debugging methods supported by the CLI."""
