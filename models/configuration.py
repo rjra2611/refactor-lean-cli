@@ -111,9 +111,9 @@ class BrokerageEnvConfiguration(PromptUserInput, ChoiceUserInput, ConfirmUserInp
         if self._input_method == "confirm":
             return self._value
         elif self._input_method == "choice":
-            return True if self._value in ["Trade", "live"] else False
+            return True if self._value in ["Practice", "Paper"] else False
         elif self._input_method == "prompt":
-            return True if self._value in ["Trade", "live"] else False
+            return True if self._value in ["Practice", "Paper"] else False
         else:
             raise(f"Undefined input method type {self._input_method}")
             
