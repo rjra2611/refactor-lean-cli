@@ -76,7 +76,10 @@ class PromptUserInput(UserInputConfiguration):
 class ChoiceUserInput(UserInputConfiguration):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
-        self._choices = config_json_object["Input-choices"]
+        if "Input-choices" in config_json_object.keys():
+            self._choices = config_json_object["Input-choices"]
+        else:
+            self._choices = []
 
     def AskUserForInput(self, default_value, logger: Logger):
         return click.prompt(
@@ -99,7 +102,7 @@ class PromptPasswordUserInput(UserInputConfiguration):
     def AskUserForInput(self, default_value, logger: Logger):
         return logger.prompt_password(self._input_data, default_value)
 
-class BrokerageEnvConfiguration(PromptUserInput, ConfirmUserInput):
+class BrokerageEnvConfiguration(PromptUserInput, ChoiceUserInput, ConfirmUserInput):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
 
@@ -107,6 +110,8 @@ class BrokerageEnvConfiguration(PromptUserInput, ConfirmUserInput):
     def _is_paper_environment(self):
         if self._input_method == "confirm":
             return self._value
+        elif self._input_method == "choice":
+            return True if self._value in ["Trade", "live"] else False
         elif self._input_method == "prompt":
             return True if self._value in ["Trade", "live"] else False
         else:
@@ -115,6 +120,8 @@ class BrokerageEnvConfiguration(PromptUserInput, ConfirmUserInput):
     def AskUserForInput(self, default_value, logger: Logger):
         if self._input_method == "confirm":
             return ConfirmUserInput.AskUserForInput(self, default_value, logger)
+        elif self._input_method == "choice":
+            return ChoiceUserInput.AskUserForInput(self, default_value, logger)
         elif self._input_method == "prompt":
             return PromptUserInput.AskUserForInput(self, default_value, logger)
         else:

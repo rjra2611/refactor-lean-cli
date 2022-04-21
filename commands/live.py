@@ -188,8 +188,6 @@ def _get_default_value(key: str) -> Optional[Any]:
         
 def options_from_json(configurations):
     map_to_types = {
-        "array": str,
-        "number": float,
         "string": str,
         "boolean": bool,
         "path-parameter": PathParameter(exists=True, file_okay=True, dir_okay=False)
