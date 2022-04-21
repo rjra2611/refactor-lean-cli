@@ -7,7 +7,6 @@
          "history-provider"
        ],
        "product-id": "176",
-       "is-brokerage": true,
        "name": "Ronit",
        "installs": true,
        "configurations": [
@@ -20,7 +19,6 @@
               "paper"
           ],
           "Input-method": "prompt",
-          "Input-type": "string",
           "Input-data":"organization having subscription of module", 
           "Help": "The name or id of the organization with the Ronit module subscription"
          },
@@ -33,7 +31,6 @@
             "paper"
           ],
           "Input-method": "prompt",
-          "Input-type": "string",
           "Input-data":"API-Key", 
           "Help": "Your Binance API key"
         },
@@ -46,7 +43,6 @@
             "paper"
           ],
           "Input-method": "prompt-password",
-          "Input-type": "string",
           "Input-data":"API secret", 
           "Help": "Your Binance API secret"
         },
@@ -59,7 +55,6 @@
             "paper"
           ],
           "Input-method": "confirm",
-          "Input-type": "boolean",
           "Input-data":"Use the testnet?", 
           "Help": "Whether the testnet should be used"
         },

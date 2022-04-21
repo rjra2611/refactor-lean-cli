@@ -1,6 +1,7 @@
 import click
 import abc
 from lean.components.util.logger import Logger
+from lean.click import PathParameter
 
 class Configuration(abc.ABC):
     def __init__(self, config_json_object):
@@ -45,7 +46,6 @@ class UserInputConfiguration(Configuration, abc.ABC):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
         self._input_method = config_json_object["Input-method"]
-        self._input_type = config_json_object["Input-type"]
         self._input_data = config_json_object["Input-data"]
         self._help = config_json_object["Help"]
 
@@ -62,6 +62,8 @@ class UserInputConfiguration(Configuration, abc.ABC):
             return ConfirmUserInput(config_json_object)
         elif config_json_object["Input-method"] == "prompt-password":
             return PromptPasswordUserInput(config_json_object)
+        elif config_json_object["Input-method"] == "path-parameter":
+            return PathParameterUserInput(config_json_object)
 
     def is_required_from_user(self):
         return True
@@ -86,6 +88,16 @@ class ChoiceUserInput(UserInputConfiguration):
                     self._input_data,
                     default_value,
                     type=click.Choice(self._choices, case_sensitive=False)
+                )
+
+class PathParameterUserInput(UserInputConfiguration):
+    def __init__(self, config_json_object):
+        super().__init__(config_json_object)
+
+    def AskUserForInput(self, default_value, logger: Logger):
+        return click.prompt(self._input_data,
+                    type=PathParameter(exists=True, file_okay=True, dir_okay=False),
+                    default=default_value
                 )
 
 class ConfirmUserInput(UserInputConfiguration):

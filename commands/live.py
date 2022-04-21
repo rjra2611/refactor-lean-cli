@@ -187,11 +187,18 @@ def _get_default_value(key: str) -> Optional[Any]:
     return value
         
 def options_from_json(configurations):
-    map_to_types = {
-        "string": str,
-        "boolean": bool,
-        "path-parameter": PathParameter(exists=True, file_okay=True, dir_okay=False)
-    }
+
+    def get_click_option_type(configuration):
+        if configuration._input_method == "confirm":
+            return bool
+        elif configuration._input_method == "choice":
+            return click.Choice(configuration._choices, case_sensitive=False)
+        elif configuration._input_method == "prompt":
+            return str
+        elif configuration._input_method == "prompt-password":
+            return str
+        elif configuration._input_method == "path-parameter":
+            return PathParameter(exists=True, file_okay=True, dir_okay=False)
 
     def decorator(f):
         for configuration in reversed(configurations):
@@ -199,13 +206,9 @@ def options_from_json(configurations):
             name = str(configuration._name).replace('-','_')
             param_decls = (
                 '--' + long,
-                name)
-            if configuration._input_method == "choice":
-                click_option_type = click.Choice(configuration._choices, case_sensitive=False)
-            else:
-                click_option_type = map_to_types.get(configuration._input_type, configuration._input_type) 
+                name) 
             attrs = dict(
-                type=click_option_type,
+                type=get_click_option_type(configuration),
                 help=configuration._help,
                 default=_get_default_value(configuration._default_property_name) 
             )
