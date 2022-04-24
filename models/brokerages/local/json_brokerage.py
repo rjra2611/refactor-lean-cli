@@ -33,11 +33,6 @@ class JsonBrokerage(LocalBrokerage):
                 continue
             setattr(self, self._convert_lean_key_to_attribute(key), value)
         self._organization_name = f"{self._name.lower()}-organization"
-
-    @property
-    def _testnet(self):
-        [brokerage_env_config] = [config for config in self._lean_configs if config._is_type_trading_env]
-        return brokerage_env_config._is_paper_environment
     
     @property
     def _user_filters(self):

@@ -163,17 +163,6 @@ class BrokerageEnvConfiguration(PromptUserInput, ChoiceUserInput, ConfirmUserInp
 class TradingEnvConfiguration(BrokerageEnvConfiguration):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
-
-    @property
-    def _is_paper_environment(self):
-        if self._input_method == "confirm":
-            return self._value
-        elif self._input_method == "choice":
-            return True if self._value in ["Practice", "Paper"] else False
-        elif self._input_method == "prompt":
-            return True if self._value in ["Practice", "Paper"] else False
-        else:
-            raise(f"Undefined input method type {self._input_method}")
     
     def AskUserForInput(self, default_value, logger: Logger):
         if self._input_method == "confirm":
