@@ -3,94 +3,114 @@
      {
        "type": [
          "brokerage",
-         "data-queue-handler",
-         "history-provider"
+         "data-queue-handler"
        ],
-       "product-id": "176",
-       "name": "Ronit",
+       "product-id": "138",
+       "name": "FTX",
        "installs": true,
        "configurations": [
          {
-          "Name": "ronit-organization",
+          "Name": "ftx-exchange-name",
+          "Type": "filter-env",
+          "Value": "",
+          "Environment": [
+            "live","paper","FTXUS", "FTX"
+          ],
+          "Input-method": "choice",
+          "Input-data":"FTX Exchange",
+          "Input-choices": ["FTX", "FTXUS"], 
+          "Help": "FTX Exchange"
+        },
+        {
+          "Name": "ftx-organization",
           "Type": "input",
           "Value": "",
           "Environment": [
               "live",
-              "paper"
+              "paper",
+              "FTX",
+              "FTXUS"
           ],
           "Input-method": "prompt",
           "Input-data":"organization having subscription of module", 
-          "Help": "The name or id of the organization with the Ronit module subscription"
+          "Help": "The name or id of the organization with the Ronit module subscription",
+          "Log-message": "Log messages are before outputting the prompt"
          },
         {
-          "Name": "binance-api-key",
+          "Name": "ftx-api-key",
           "Type": "input",
           "Value": "",
           "Environment": [
             "live",
-            "paper"
+            "paper", "FTX"
           ],
           "Input-method": "prompt",
           "Input-data":"API-Key", 
           "Help": "Your Binance API key"
         },
         {
-          "Name": "binance-api-secret",
+          "Name": "ftxus-api-key",
           "Type": "input",
           "Value": "",
           "Environment": [
             "live",
-            "paper"
+            "paper", "FTXUS"
+          ],
+          "Input-method": "prompt",
+          "Input-data":"API-Key", 
+          "Help": "Your Binance API key"
+        },
+        {
+          "Name": "ftx-api-secret",
+          "Type": "input",
+          "Value": "",
+          "Environment": [
+            "live",
+            "paper",
+            "FTX"
           ],
           "Input-method": "prompt-password",
           "Input-data":"API secret", 
           "Help": "Your Binance API secret"
         },
         {
-          "Name": "binance-use-testnet",
-          "Type": "brokerage-env",
+          "Name": "ftxus-api-secret",
+          "Type": "input",
           "Value": "",
           "Environment": [
             "live",
-            "paper"
+            "paper",
+            "FTXUS"
           ],
-          "Input-method": "confirm",
-          "Input-data":"Use the testnet?", 
-          "Help": "Whether the testnet should be used"
+          "Input-method": "prompt-password",
+          "Input-data":"API secret", 
+          "Help": "Your Binance API secret"
         },
-         {
-           "Name": "binance-api-url",
-           "Type": "info",
-           "Value": "https://api.binance.com",
-           "Environment": [
-             "live"
-           ]
-         },
-         {
-          "Name": "binance-api-url",
-          "Type": "info",
-          "Value": "https://testnet.binance.vision",
+        {
+          "Name": "ftx-account-tier",
+          "Type": "input",
+          "Value": "",
           "Environment": [
-            "paper"
-          ]
+            "live","paper","FTX"
+          ],
+          "Input-method": "choice",
+          "Input-data":"FTX Exchange",
+          "Input-choices": ["Tier1", "Tier2", "Tier3", "Tier4", "Tier5", "Tier6"], 
+          "Help": "FTX Exchange"
         },
-         {
-           "Name": "binance-websocket-url",
-           "Type": "info",
-           "Value": "wss://stream.binance.com:9443/ws",
-           "Environment": [
-             "live"
-           ]
-         },
-         {
-          "Name": "binance-websocket-url",
-          "Type": "info",
-          "Value": "wss://testnet.binance.vision/ws",
+        {
+          "Name": "ftxus-account-tier",
+          "Type": "input",
+          "Value": "",
           "Environment": [
-            "paper"
-          ]
+            "live","paper","FTXUS"
+          ],
+          "Input-method": "choice",
+          "Input-data":"FTX Exchange",
+          "Input-choices": ["Tier1", "Tier2", "Tier3", "Tier4", "Tier5", "Tier6"], 
+          "Help": "FTX Exchange"
         },
-         {
+        {
            "Name": "environments",
            "Type": "configurations-env",
            "Value": [
@@ -99,7 +119,7 @@
                "Value": [
                  {
                    "Name": "live-mode-brokerage",
-                   "Value": "BinanceBrokerage"
+                   "Value": "FTXBrokerage"
                  },
                  {
                    "Name": "transaction-handler",
@@ -107,7 +127,7 @@
                  },
                  {
                   "Name": "data-queue-handler",
-                  "Value": "BinanceBrokerage"
+                  "Value": "FTXBrokerage"
                 },
                 {
                   "Name": "history-provider",
@@ -117,10 +137,39 @@
              }
            ],
            "Environment": [
-            "live",
-            "paper"
+            "paper", "FTX"
           ]
-         }
+         },
+         {
+          "Name": "environments",
+          "Type": "configurations-env",
+          "Value": [
+            {
+              "Name": "lean-cli",
+              "Value": [
+                {
+                 "Name": "live-mode-brokerage",
+                 "Value": "FTXUSBrokerage"
+               },
+                {
+                  "Name": "transaction-handler",
+                  "Value": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler"
+                },
+                {
+                 "Name": "data-queue-handler",
+                 "Value": "FTXUSBrokerage"
+               },
+               {
+                 "Name": "history-provider",
+                 "Value": "BrokerageHistoryProvider"
+               }
+              ]
+            }
+          ],
+          "Environment": [
+            "paper","FTXUS"
+         ]
+        }
        ]
      }
    ]

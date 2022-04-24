@@ -21,21 +21,27 @@ class Configuration(abc.ABC):
         self._name = config_json_object["Name"]
         self._config_type = config_json_object["Type"]
         self._value = config_json_object["Value"]
-        self._envrionment = config_json_object["Environment"]
+        self._filter = Filter(config_json_object["Environment"])
         self._is_type_configurations_env = type(self) is ConfigurationsEnvConfiguration
-        self._is_type_brokerage_env = type(self) is BrokerageEnvConfiguration
+        self._is_type_trading_env = type(self) is TradingEnvConfiguration
 
     @abc.abstractmethod
     def is_required_from_user(self):
         return NotImplemented()
 
     def factory(config_json_object):
-        if config_json_object["Type"] in ["info" , "configurations-env"] :
+        if config_json_object["Type"] in ["info" , "configurations-env"]:
             return InfoConfiguration.factory(config_json_object)
         elif config_json_object["Type"] == "input":
             return UserInputConfiguration.factory(config_json_object)
-        elif config_json_object["Type"] == "brokerage-env":
-            return BrokerageEnvConfiguration(config_json_object)
+        elif config_json_object["Type"] in ["filter-env" , "trading-env"]:
+            return BrokerageEnvConfiguration.factory(config_json_object)
+        else:
+            raise(f'Undefined input method type {config_json_object["Type"]}')
+
+class Filter():
+    def __init__(self, filter_environments):
+        self._options = filter_environments
 
 class InfoConfiguration(Configuration):
     def __init__(self, config_json_object):
@@ -108,10 +114,13 @@ class PathParameterUserInput(UserInputConfiguration):
         super().__init__(config_json_object)
 
     def AskUserForInput(self, default_value, logger: Logger):
-        return click.prompt(self._input_data,
+        value = click.prompt(self._input_data,
                     type=PathParameter(exists=True, file_okay=True, dir_okay=False),
                     default=default_value
                 )
+        if not value:
+            str(value).replace("\\", "/")
+        return value
 
 class ConfirmUserInput(UserInputConfiguration):
     def __init__(self, config_json_object):
@@ -127,7 +136,31 @@ class PromptPasswordUserInput(UserInputConfiguration):
     def AskUserForInput(self, default_value, logger: Logger):
         return logger.prompt_password(self._input_data, default_value)
 
+
 class BrokerageEnvConfiguration(PromptUserInput, ChoiceUserInput, ConfirmUserInput):
+    def __init__(self, config_json_object):
+        super().__init__(config_json_object)
+    
+    def factory(config_json_object):
+        if config_json_object["Type"] == "trading-env":
+            return TradingEnvConfiguration(config_json_object)
+        elif config_json_object["Type"] == "filter-env":
+            return FilterEnvConfiguration(config_json_object)
+        else:
+            raise(f'Undefined input method type {config_json_object["Type"]}')
+
+    def AskUserForInput(self, default_value, logger: Logger):
+        if self._input_method == "confirm":
+            return ConfirmUserInput.AskUserForInput(self, default_value, logger)
+        elif self._input_method == "choice":
+            return ChoiceUserInput.AskUserForInput(self, default_value, logger)
+        elif self._input_method == "prompt":
+            return PromptUserInput.AskUserForInput(self, default_value, logger)
+        else:
+            raise(f"Undefined input method type {self._input_method}")
+    
+
+class TradingEnvConfiguration(BrokerageEnvConfiguration):
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
 
@@ -141,13 +174,14 @@ class BrokerageEnvConfiguration(PromptUserInput, ChoiceUserInput, ConfirmUserInp
             return True if self._value in ["Practice", "Paper"] else False
         else:
             raise(f"Undefined input method type {self._input_method}")
-            
+    
     def AskUserForInput(self, default_value, logger: Logger):
         if self._input_method == "confirm":
-            return ConfirmUserInput.AskUserForInput(self, default_value, logger)
-        elif self._input_method == "choice":
-            return ChoiceUserInput.AskUserForInput(self, default_value, logger)
-        elif self._input_method == "prompt":
-            return PromptUserInput.AskUserForInput(self, default_value, logger)
+            value = ConfirmUserInput.AskUserForInput(self, default_value, logger)
+            return "paper" if bool(value) else "live" 
         else:
-            raise(f"Undefined input method type {self._input_method}")
+            return BrokerageEnvConfiguration.AskUserForInput(self, default_value, logger)
+
+class FilterEnvConfiguration(BrokerageEnvConfiguration):
+    def __init__(self, config_json_object):
+        super().__init__(config_json_object)

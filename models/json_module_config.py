@@ -31,7 +31,6 @@ class LeanConfigConfigurer(abc.ABC):
         """
         raise NotImplementedError()
 
-    @abc.abstractmethod
     def get_live_name(self, environment_name: str, is_brokerage=False) -> str:
         """Returns the user-friendly name which users can identify this object by.
 
