@@ -11,10 +11,33 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+import re
+from typing import Any, Dict, Optional
 import click
 import abc
 from lean.components.util.logger import Logger
 from lean.click import PathParameter
+        
+class RegexOptionCondition():
+    _type: str
+    _pattern: str
+    _dependent_config_id: str
+
+    def __init__(self, condition_object: Dict[str, Any]):
+        self._type = condition_object["type"]
+        self._pattern = str(condition_object["pattern"])
+        self._dependent_config_id = condition_object["dependent-config-id"]
+
+    def check(self, target_value: str) -> bool:
+        return len(re.findall(self._pattern, target_value, re.I)) > 0
+
+class ConditionalValueOption():
+    _value: str
+    _condition: Optional[RegexOptionCondition] = None
+
+    def __init__(self, option_object: Dict[str, Any]):
+        self._value = option_object["value"]
+        self._condition = RegexOptionCondition(option_object["condition"])
 
 class Configuration(abc.ABC):
     def __init__(self, config_json_object):
@@ -32,7 +55,7 @@ class Configuration(abc.ABC):
     def factory(config_json_object):
         if config_json_object["Type"] in ["info" , "configurations-env"]:
             return InfoConfiguration.factory(config_json_object)
-        elif config_json_object["Type"] == "input":
+        elif config_json_object["Type"] in ["input","internal-input"]:
             return UserInputConfiguration.factory(config_json_object)
         elif config_json_object["Type"] in ["filter-env" , "trading-env"]:
             return BrokerageEnvConfiguration.factory(config_json_object)
@@ -73,6 +96,9 @@ class UserInputConfiguration(Configuration, abc.ABC):
         return NotImplemented()
 
     def factory(config_json_object):
+        # Check "Type" before "Input-method"
+        if config_json_object["Type"] == "internal-input":
+            return InternalInputUserInput(config_json_object)
         if config_json_object["Input-method"] == "prompt":
             return PromptUserInput(config_json_object)
         elif config_json_object["Input-method"] == "choice":
@@ -86,6 +112,16 @@ class UserInputConfiguration(Configuration, abc.ABC):
 
     def is_required_from_user(self):
         return True
+
+class InternalInputUserInput(UserInputConfiguration):
+
+    def __init__(self, config_json_object):
+        super().__init__(config_json_object)
+        value_options = [ConditionalValueOption(value_option) for value_option in config_json_object["Value-options"]]
+        self._value_options = value_options
+
+    def AskUserForInput(self, default_value, logger: Logger):
+        return NotImplemented()
 
 class PromptUserInput(UserInputConfiguration):
     def __init__(self, config_json_object):

@@ -5,31 +5,75 @@
          "brokerage",
          "data-queue-handler"
        ],
-       "product-id": "138",
-       "name": "FTX",
+       "product-id": "181",
+       "name": "Interactive Brokers",
        "installs": true,
        "configurations": [
-         {
-          "Name": "ftx-exchange-name",
-          "Type": "filter-env",
+        {
+          "Name": "ib-agent-description",
+          "Type": "internal-input",
           "Value": "",
           "Environment": [
-            "live","paper","FTXUS", "FTX"
+            "live","paper"
           ],
-          "Input-method": "choice",
-          "Input-data":"FTX Exchange",
-          "Input-choices": ["FTX", "FTXUS"], 
-          "Help": "FTX Exchange"
+          "Value-options": [
+            {
+              "condition":{
+                 "type":"regex",
+                 "pattern":"^du|^df|^u",
+                 "dependent-config-id":"ib-account"
+              },
+              "value":"Individual"
+            },
+            {
+              "condition":{
+                "type":"regex",
+                "pattern":"^di|^f|^i",
+                "dependent-config-id":"ib-account"
+              },
+              "value":"Advisor"
+            }
+          ],
+          "Input-method": "prompt",
+          "Input-data":"Username", 
+          "Help": "Your IB API key"
         },
         {
-          "Name": "ftx-organization",
+          "Name": "ib-trading-mode",
+          "Type": "internal-input",
+          "Value": "",
+          "Environment": [
+            "live","paper"
+          ],
+          "Value-options": [
+            {
+              "condition":{
+                 "type":"regex",
+                 "pattern":"^df|^du|^di",
+                 "dependent-config-id":"ib-account"
+              },
+              "value":"paper"
+            },
+            {
+              "condition":{
+                "type":"regex",
+                "pattern":"^f|^i|^u",
+                "dependent-config-id":"ib-account"
+              },
+              "value":"live"
+            }
+          ],
+          "Input-method": "prompt",
+          "Input-data":"Username", 
+          "Help": "Your IB API key"
+        },
+        {
+          "Name": "interactive-brokers-organization",
           "Type": "input",
           "Value": "",
           "Environment": [
               "live",
-              "paper",
-              "FTX",
-              "FTXUS"
+              "paper"
           ],
           "Input-method": "prompt",
           "Input-data":"organization having subscription of module", 
@@ -37,78 +81,40 @@
           "Log-message": "Log messages are before outputting the prompt"
          },
         {
-          "Name": "ftx-api-key",
+          "Name": "ib-user-name",
           "Type": "input",
           "Value": "",
           "Environment": [
             "live",
-            "paper", "FTX"
+            "paper"
           ],
           "Input-method": "prompt",
-          "Input-data":"API-Key", 
-          "Help": "Your Binance API key"
+          "Input-data":"Username", 
+          "Help": "Your IB API key"
         },
         {
-          "Name": "ftxus-api-key",
+          "Name": "ib-account",
           "Type": "input",
           "Value": "",
           "Environment": [
             "live",
-            "paper", "FTXUS"
+            "paper"
           ],
           "Input-method": "prompt",
-          "Input-data":"ftxus-api-key", 
-          "Help": "Your Binance API key"
+          "Input-data":"Account id", 
+          "Help": "Your IB API key"
         },
         {
-          "Name": "ftx-api-secret",
+          "Name": "ib-password",
           "Type": "input",
           "Value": "",
           "Environment": [
             "live",
-            "paper",
-            "FTX"
+            "paper"
           ],
           "Input-method": "prompt-password",
-          "Input-data":"API secret", 
-          "Help": "Your Binance API secret"
-        },
-        {
-          "Name": "ftxus-api-secret",
-          "Type": "input",
-          "Value": "",
-          "Environment": [
-            "live",
-            "paper",
-            "FTXUS"
-          ],
-          "Input-method": "prompt-password",
-          "Input-data":"ftxus-api-secret", 
-          "Help": "Your Binance API secret"
-        },
-        {
-          "Name": "ftx-account-tier",
-          "Type": "input",
-          "Value": "",
-          "Environment": [
-            "live","paper","FTX"
-          ],
-          "Input-method": "choice",
-          "Input-data":"FTX Exchange",
-          "Input-choices": ["Tier1", "Tier2", "Tier3", "Tier4", "Tier5", "Tier6"], 
-          "Help": "FTX Exchange"
-        },
-        {
-          "Name": "ftxus-account-tier",
-          "Type": "input",
-          "Value": "",
-          "Environment": [
-            "live","paper","FTXUS"
-          ],
-          "Input-method": "choice",
-          "Input-data":"ftxus-account-tier",
-          "Input-choices": ["Tier1", "Tier2", "Tier3", "Tier4", "Tier5", "Tier6"], 
-          "Help": "FTX Exchange"
+          "Input-data":"ib-password", 
+          "Help": "Your IB API key"
         },
         {
            "Name": "environments",
@@ -119,7 +125,7 @@
                "Value": [
                  {
                    "Name": "live-mode-brokerage",
-                   "Value": "FTXBrokerage"
+                   "Value": "InteractiveBrokersBrokerage"
                  },
                  {
                    "Name": "transaction-handler",
@@ -127,7 +133,7 @@
                  },
                  {
                   "Name": "data-queue-handler",
-                  "Value": "FTXBrokerage"
+                  "Value": "QuantConnect.Brokerages.InteractiveBrokers.InteractiveBrokersBrokerage"
                 },
                 {
                   "Name": "history-provider",
@@ -137,39 +143,9 @@
              }
            ],
            "Environment": [
-            "paper", "FTX"
+            "live", "paper"
           ]
-         },
-         {
-          "Name": "environments",
-          "Type": "configurations-env",
-          "Value": [
-            {
-              "Name": "lean-cli",
-              "Value": [
-                {
-                 "Name": "live-mode-brokerage",
-                 "Value": "FTXUSBrokerage"
-               },
-                {
-                  "Name": "transaction-handler",
-                  "Value": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler"
-                },
-                {
-                 "Name": "data-queue-handler",
-                 "Value": "FTXUSBrokerage"
-               },
-               {
-                 "Name": "history-provider",
-                 "Value": "BrokerageHistoryProvider"
-               }
-              ]
-            }
-          ],
-          "Environment": [
-            "paper","FTXUS"
-         ]
-        }
+         }
        ]
      }
    ]

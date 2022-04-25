@@ -16,7 +16,7 @@ from lean.components.util.logger import Logger
 from lean.container import container
 from lean.models.brokerages.local.json_module_base import LocalBrokerage
 from lean.models.logger import Option
-from lean.models.configuration import BrokerageEnvConfiguration, Configuration
+from lean.models.configuration import BrokerageEnvConfiguration, Configuration, InternalInputUserInput
 import copy
 
 class JsonBrokerage(LocalBrokerage):
@@ -32,7 +32,7 @@ class JsonBrokerage(LocalBrokerage):
                 self._lean_configs = self.sort_configs(temp_list)
                 continue
             setattr(self, self._convert_lean_key_to_attribute(key), value)
-        self._organization_name = f"{self._name.lower()}-organization"
+        self._organization_name = f'{self._name.lower().replace(" ", "-")}-organization'
     
     @property
     def _user_filters(self):
@@ -111,6 +111,8 @@ class JsonBrokerage(LocalBrokerage):
                 continue
             if not isinstance(configuration, BrokerageEnvConfiguration) and not self.check_if_config_passes_filters(configuration):
                 continue
+            if type(configuration) is InternalInputUserInput:
+                continue
             if self._organization_name == configuration._name:
                 api_client = container.api_client()
                 organizations = api_client.organizations.get_all()
@@ -139,11 +141,19 @@ class JsonBrokerage(LocalBrokerage):
             return 
         lean_config["job-organization-id"] = self.get_organzation_id()
         for configuration in self._lean_configs:
+            value = None
             if configuration._is_type_configurations_env:
                 continue
             elif not self.check_if_config_passes_filters(configuration):
                 continue
-            lean_config[configuration._name] = configuration._value
+            elif type(configuration) is InternalInputUserInput:
+                for option in configuration._value_options:
+                    if option._condition.check(self.get_config_value_from_name(option._condition._dependent_config_id)):
+                        value = option._value
+                        break
+            else:
+                value = configuration._value
+            lean_config[configuration._name] = value
         self._save_properties(lean_config, self.get_required_properties())
 
     def ensure_module_installed(self) -> None:
