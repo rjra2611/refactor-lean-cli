@@ -57,7 +57,7 @@
             "paper", "FTXUS"
           ],
           "Input-method": "prompt",
-          "Input-data":"API-Key", 
+          "Input-data":"ftxus-api-key", 
           "Help": "Your Binance API key"
         },
         {
@@ -83,7 +83,7 @@
             "FTXUS"
           ],
           "Input-method": "prompt-password",
-          "Input-data":"API secret", 
+          "Input-data":"ftxus-api-secret", 
           "Help": "Your Binance API secret"
         },
         {
@@ -106,7 +106,7 @@
             "live","paper","FTXUS"
           ],
           "Input-method": "choice",
-          "Input-data":"FTX Exchange",
+          "Input-data":"ftxus-account-tier",
           "Input-choices": ["Tier1", "Tier2", "Tier3", "Tier4", "Tier5", "Tier6"], 
           "Help": "FTX Exchange"
         },
