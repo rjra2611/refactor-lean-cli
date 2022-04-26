@@ -11,6 +11,7 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
+from pathlib import Path
 import re
 from typing import Any, Dict, Optional
 import click
@@ -94,6 +95,9 @@ class UserInputConfiguration(Configuration, abc.ABC):
         self._input_method = config_json_object["Input-method"]
         self._input_data = config_json_object["Input-data"]
         self._help = config_json_object["Help"]
+        self._input_default = None
+        if "Input-default" in config_json_object.keys():
+            self._input_default = config_json_object["Input-default"]
 
     @abc.abstractmethod
     def AskUserForInput(self, default_value):
@@ -166,9 +170,15 @@ class PathParameterUserInput(UserInputConfiguration):
         super().__init__(config_json_object)
 
     def AskUserForInput(self, default_value, logger: Logger):
+
+        default_binary = None
+        if default_value is not None:
+            default_binary = Path(default_value)
+        elif self._input_default is not None and Path(self._input_default).is_file():
+            default_binary = Path(self._input_default)
         value = click.prompt(self._input_data,
                     type=PathParameter(exists=True, file_okay=True, dir_okay=False),
-                    default=default_value
+                    default=default_binary
                 )
         if not value:
             str(value).replace("\\", "/")
