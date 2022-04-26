@@ -140,8 +140,9 @@ class JsonBrokerage(LocalBrokerage):
 
     def configure_credentials(self, lean_config: Dict[str, Any]) -> None:
         if hasattr(self, '_is_installed_and_build') and self._is_installed_and_build:
-            return 
-        lean_config["job-organization-id"] = self.get_organzation_id()
+            return
+        if self._installs:
+            lean_config["job-organization-id"] = self.get_organzation_id()
         for configuration in self._lean_configs:
             value = None
             if configuration._is_type_configurations_env:
