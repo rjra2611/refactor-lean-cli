@@ -128,11 +128,23 @@ class InternalInputUserInput(UserInputConfiguration):
         return NotImplemented()
 
 class PromptUserInput(UserInputConfiguration):
+    map_to_types = {
+        "string": str,
+        "boolean": bool,
+        "integer": int
+    }
+
     def __init__(self, config_json_object):
         super().__init__(config_json_object)
+        self._input_type = "string"
+        if "Input-type" in config_json_object.keys():
+            self._input_type = config_json_object["Input-type"]
 
     def AskUserForInput(self, default_value, logger: Logger):
-        return click.prompt(self._input_data, default_value)
+        return click.prompt(self._input_data, default_value, type=self.get_input_type())
+
+    def get_input_type(self):
+        return self.map_to_types.get(self._input_type, self._input_type)
 
 class ChoiceUserInput(UserInputConfiguration):
     def __init__(self, config_json_object):

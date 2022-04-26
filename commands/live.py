@@ -200,7 +200,7 @@ def options_from_json(configurations):
         elif configuration._input_method == "choice":
             return click.Choice(configuration._choices, case_sensitive=False)
         elif configuration._input_method == "prompt":
-            return str
+            return configuration.get_input_type()
         elif configuration._input_method == "prompt-password":
             return str
         elif configuration._input_method == "path-parameter":
