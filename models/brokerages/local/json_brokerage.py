@@ -123,6 +123,8 @@ class JsonBrokerage(LocalBrokerage):
                 )
                 user_choice = organization_id
             else:
+                if configuration._log_message is not None:
+                    logger.info(configuration._log_message.strip())
                 user_choice = configuration.AskUserForInput(self._get_default(lean_config, configuration._name), logger)
             self.update_value_for_given_config(configuration._name, user_choice)
         

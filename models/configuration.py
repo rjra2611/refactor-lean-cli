@@ -47,6 +47,10 @@ class Configuration(abc.ABC):
         self._filter = Filter(config_json_object["Environment"])
         self._is_type_configurations_env = type(self) is ConfigurationsEnvConfiguration
         self._is_type_trading_env = type(self) is TradingEnvConfiguration
+        self._log_message = None
+        if "Log-message" in config_json_object.keys():
+            self._log_message = config_json_object["Log-message"]
+
 
     @abc.abstractmethod
     def is_required_from_user(self):
