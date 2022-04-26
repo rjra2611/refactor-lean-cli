@@ -218,8 +218,7 @@ class TradingEnvConfiguration(BrokerageEnvConfiguration):
     
     def AskUserForInput(self, default_value, logger: Logger):
         if self._input_method == "confirm":
-            value = ConfirmUserInput.AskUserForInput(self, default_value, logger)
-            return "paper" if bool(value) else "live" 
+            raise ValueError(f'input method -- {self._input_method} is not allowed with {self.__class__.__name__}')
         else:
             return BrokerageEnvConfiguration.AskUserForInput(self, default_value, logger)
 

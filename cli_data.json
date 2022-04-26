@@ -1,152 +1,96 @@
 {
-   "modules": [
-     {
-       "type": [
-         "brokerage",
-         "data-queue-handler"
+  "modules": [
+    {
+      "type": [
+        "brokerage",
+        "data-queue-handler"
+      ],
+      "product-id": "",
+      "name": "IQFeed",
+      "installs": false,
+      "configurations": [
+       {
+         "Name": "iqfeed-iqconnect",
+         "Type": "input",
+         "Value": "",
+         "Environment": [
+          "live", "paper"
+        ],
+         "Input-method": "path-parameter",
+         "Input-data":"User name", 
+         "Help": "Your IB API key"
+       },
+       {
+        "Name": "tt-session-password",
+        "Type": "input",
+        "Value": "",
+        "Environment": [
+          "live", "paper"
+        ],
+        "Input-method": "prompt-password",
+        "Input-data":"Session password", 
+        "Help": "Your IB API key"
+      },
+      {
+        "Name": "tt-account-name",
+        "Type": "input",
+        "Value": "",
+        "Environment": [
+         "live", "paper"
        ],
-       "product-id": "181",
-       "name": "Interactive Brokers",
-       "installs": true,
-       "configurations": [
-        {
-          "Name": "ib-agent-description",
-          "Type": "internal-input",
-          "Value": "",
-          "Environment": [
-            "live","paper"
-          ],
-          "Value-options": [
+        "Input-method": "prompt",
+        "Input-data":"Account name", 
+        "Help": "Your IB API key"
+      },
+      {
+        "Name": "tt-rest-app-key",
+        "Type": "input",
+        "Value": "",
+        "Environment": [
+         "live", "paper"
+       ],
+        "Input-method": "prompt",
+        "Input-data":"REST app key", 
+        "Help": "Your IB API key"
+      },
+      {
+        "Name": "tt-rest-app-secret",
+        "Type": "input",
+        "Value": "",
+        "Environment": [
+          "live", "paper"
+        ],
+        "Input-method": "prompt-password",
+        "Input-data":"REST app secret", 
+        "Help": "Your IB API key"
+      },
+       {
+          "Name": "environments",
+          "Type": "configurations-env",
+          "Value": [
             {
-              "condition":{
-                 "type":"regex",
-                 "pattern":"^du|^df|^u",
-                 "dependent-config-id":"ib-account"
-              },
-              "value":"Individual"
-            },
-            {
-              "condition":{
-                "type":"regex",
-                "pattern":"^di|^f|^i",
-                "dependent-config-id":"ib-account"
-              },
-              "value":"Advisor"
-            }
-          ],
-          "Input-method": "prompt",
-          "Input-data":"Username", 
-          "Help": "Your IB API key"
-        },
-        {
-          "Name": "ib-trading-mode",
-          "Type": "internal-input",
-          "Value": "",
-          "Environment": [
-            "live","paper"
-          ],
-          "Value-options": [
-            {
-              "condition":{
-                 "type":"regex",
-                 "pattern":"^df|^du|^di",
-                 "dependent-config-id":"ib-account"
-              },
-              "value":"paper"
-            },
-            {
-              "condition":{
-                "type":"regex",
-                "pattern":"^f|^i|^u",
-                "dependent-config-id":"ib-account"
-              },
-              "value":"live"
-            }
-          ],
-          "Input-method": "prompt",
-          "Input-data":"Username", 
-          "Help": "Your IB API key"
-        },
-        {
-          "Name": "interactive-brokers-organization",
-          "Type": "input",
-          "Value": "",
-          "Environment": [
-              "live",
-              "paper"
-          ],
-          "Input-method": "prompt",
-          "Input-data":"organization having subscription of module", 
-          "Help": "The name or id of the organization with the Ronit module subscription",
-          "Log-message": "Log messages are before outputting the prompt"
-         },
-        {
-          "Name": "ib-user-name",
-          "Type": "input",
-          "Value": "",
-          "Environment": [
-            "live",
-            "paper"
-          ],
-          "Input-method": "prompt",
-          "Input-data":"Username", 
-          "Help": "Your IB API key"
-        },
-        {
-          "Name": "ib-account",
-          "Type": "input",
-          "Value": "",
-          "Environment": [
-            "live",
-            "paper"
-          ],
-          "Input-method": "prompt",
-          "Input-data":"Account id", 
-          "Help": "Your IB API key"
-        },
-        {
-          "Name": "ib-password",
-          "Type": "input",
-          "Value": "",
-          "Environment": [
-            "live",
-            "paper"
-          ],
-          "Input-method": "prompt-password",
-          "Input-data":"ib-password", 
-          "Help": "Your IB API key"
-        },
-        {
-           "Name": "environments",
-           "Type": "configurations-env",
-           "Value": [
-             {
-               "Name": "lean-cli",
-               "Value": [
-                 {
-                   "Name": "live-mode-brokerage",
-                   "Value": "InteractiveBrokersBrokerage"
-                 },
-                 {
-                   "Name": "transaction-handler",
-                   "Value": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler"
-                 },
-                 {
-                  "Name": "data-queue-handler",
-                  "Value": "QuantConnect.Brokerages.InteractiveBrokers.InteractiveBrokersBrokerage"
+              "Name": "lean-cli",
+              "Value": [
+                {
+                  "Name": "live-mode-brokerage",
+                  "Value": "TradingTechnologiesBrokerage"
                 },
                 {
-                  "Name": "history-provider",
-                  "Value": "BrokerageHistoryProvider"
-                }
-               ]
-             }
-           ],
-           "Environment": [
-            "live", "paper"
-          ]
-         }
-       ]
-     }
-   ]
+                  "Name": "transaction-handler",
+                  "Value": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler"
+                },
+                {
+                 "Name": "data-queue-handler",
+                 "Value": "TradingTechnologiesBrokerage"
+               }
+              ]
+            }
+          ],
+          "Environment": [
+           "live", "paper"
+         ]
+        }
+      ]
+    }
+  ]
 }
