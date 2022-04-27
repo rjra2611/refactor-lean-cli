@@ -2,6 +2,70 @@
   "modules": [
     {
       "type": [
+        "data-provider"
+      ],
+      "product-id": "",
+      "name": "Local",
+      "installs": false,
+      "configurations": [
+        {
+          "Name": "data-provider",
+          "Type": "info",
+          "Value": "QuantConnect.Lean.Engine.DataFeeds.DefaultDataProvider",
+          "Environment": [
+            "live"
+          ]
+        }
+      ]
+    },
+    {
+      "type": [
+        "data-provider"
+      ],
+      "product-id": "",
+      "name": "QuantConnect",
+      "installs": false,
+      "configurations": [
+        {
+          "Name": "quantConnect-organization",
+          "Type": "input",
+          "Value": "",
+          "Environment": [
+              "live",
+              "paper"
+          ],
+          "Input-method": "prompt",
+          "Input-data":"organization having subscription of module", 
+          "Help": "The name or id of the organization with the Ronit module subscription"
+         },
+        {
+          "Name": "data-provider",
+          "Type": "info",
+          "Value": "QuantConnect.Lean.Engine.DataFeeds.ApiDataProvider",
+          "Environment": [
+            "live"
+          ]
+        },
+        {
+          "Name": "map-file-provider",
+          "Type": "info",
+          "Value": "QuantConnect.Data.Auxiliary.LocalZipMapFileProvider",
+          "Environment": [
+            "live"
+          ]
+        },
+        {
+          "Name": "factor-file-provider",
+          "Type": "info",
+          "Value": "QuantConnect.Data.Auxiliary.LocalZipFactorFileProvider",
+          "Environment": [
+            "live"
+          ]
+        }
+      ]
+    },
+    {
+      "type": [
         "brokerage",
         "data-queue-handler"
       ],
