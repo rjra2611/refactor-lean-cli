@@ -32,7 +32,8 @@ dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, '../../../cli_data.json')
 with open(filename) as f: 
     data = json.load(f)
-    json_modules = data['modules']   
+    json_modules = data['modules']
+    brokerage = dataQueueHandler = None   
     for json_module in json_modules:
         if "brokerage" in json_module["type"]:
             brokerage = JsonBrokerage(json_module)
