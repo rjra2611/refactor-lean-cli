@@ -23,12 +23,12 @@ class LocalBrokerage(LeanConfigConfigurer, abc.ABC):
 
     _instance = None
 
-    def build(self, lean_config: Dict[str, Any], logger: Logger, skip_build: bool = False) -> LeanConfigConfigurer:
-        return self._build(lean_config, logger, skip_build)
+    def build(self, lean_config: Dict[str, Any], logger: Logger) -> LeanConfigConfigurer:
+        return self._build(lean_config, logger)
 
     @classmethod
     @abc.abstractmethod
-    def _build(cls, lean_config: Dict[str, Any], logger: Logger, skip_build: bool) -> 'LocalBrokerage':
+    def _build(cls, lean_config: Dict[str, Any], logger: Logger) -> 'LocalBrokerage':
         """Builds a new instance of this class, prompting the user for input when necessary.
 
         LocalBrokerage.build() ensures this method is called at most once per brokerage.

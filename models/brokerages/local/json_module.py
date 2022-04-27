@@ -34,7 +34,8 @@ class JsonModule(LocalBrokerage, abc.ABC):
             setattr(self, self._convert_lean_key_to_attribute(key), value)
         self._organization_name = f'{self._name.lower().replace(" ", "-")}-organization'
         self._is_module_installed = False
-    
+        self._is_installed_and_build = False
+
     @property
     def _user_filters(self):
         return [config._value for config in self._lean_configs if isinstance(config, BrokerageEnvConfiguration)]
@@ -97,9 +98,8 @@ class JsonModule(LocalBrokerage, abc.ABC):
     def get_all_input_configs(self) -> List[str]:
         return [copy.copy(config) for config in self._lean_configs if config.is_required_from_user()]
 
-    def _build(self, lean_config: Dict[str, Any], logger: Logger, skip_build: bool = False) -> LocalBrokerage:
+    def _build(self, lean_config: Dict[str, Any], logger: Logger) -> LocalBrokerage:
         
-        self._is_installed_and_build = skip_build
         if self._is_installed_and_build:
             return self
 
@@ -128,7 +128,7 @@ class JsonModule(LocalBrokerage, abc.ABC):
         return self
 
     def _configure_environment(self, lean_config: Dict[str, Any], environment_name: str) -> None:
-        if hasattr(self, '_is_installed_and_build') and self._is_installed_and_build:
+        if self._is_installed_and_build:
             return 
         self.ensure_module_installed()
 
@@ -136,7 +136,7 @@ class JsonModule(LocalBrokerage, abc.ABC):
             lean_config["environments"][environment_name][environment_config["Name"]] = environment_config["Value"]
 
     def configure_credentials(self, lean_config: Dict[str, Any]) -> None:
-        if hasattr(self, '_is_installed_and_build') and self._is_installed_and_build:
+        if self._is_installed_and_build:
             return
         if self._installs:
             lean_config["job-organization-id"] = self.get_organzation_id()

@@ -127,13 +127,14 @@ def _configure_lean_config_interactively(lean_config: Dict[str, Any], environmen
         Option(id=data_feed, label=data_feed.get_name()) for data_feed in local_brokerage_data_feeds[brokerage]
     ])
     if brokerage._name == data_feed._name:
-        is_data_feed_brokerage = True
         # update essential properties from brokerage to datafeed
         essential_properties_value = {config._name : config._value for config in brokerage.get_essential_configs()}
         data_feed.update_configs(essential_properties_value)
+        # mark configs are updated
+        setattr(data_feed, '_is_installed_and_build', True)
     else:
         False
-    data_feed.build(lean_config, logger, is_data_feed_brokerage).configure(lean_config, environment_name)
+    data_feed.build(lean_config, logger).configure(lean_config, environment_name)
 
 
 _cached_organizations = None
