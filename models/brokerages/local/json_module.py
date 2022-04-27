@@ -14,15 +14,16 @@
 from typing import Any, Dict, List
 from lean.components.util.logger import Logger
 from lean.container import container
-from lean.models.brokerages.local.json_module_base import LocalBrokerage
 from lean.models.logger import Option
 from lean.models.configuration import BrokerageEnvConfiguration, Configuration, InternalInputUserInput
+from lean.models.json_module_config import LeanConfigConfigurer
 import copy
 import abc
 
-class JsonModule(LocalBrokerage, abc.ABC):
+class JsonModule(LeanConfigConfigurer, abc.ABC):
     """The JsonModule class is the base class extended for all json modules."""
 
+    @abc.abstractmethod
     def __init__(self, json_module_data: Dict[str, Any]) -> None:
         for key,value in json_module_data.items():
             if key == "configurations":
@@ -35,6 +36,11 @@ class JsonModule(LocalBrokerage, abc.ABC):
         self._organization_name = f'{self._name.lower().replace(" ", "-")}-organization'
         self._is_module_installed = False
         self._is_installed_and_build = False
+
+
+    def configure(self, lean_config: Dict[str, Any], environment_name: str) -> None:
+        self._configure_environment(lean_config, environment_name)
+        self.configure_credentials(lean_config)
 
     @property
     def _user_filters(self):
@@ -94,7 +100,7 @@ class JsonModule(LocalBrokerage, abc.ABC):
     def get_all_input_configs(self) -> List[str]:
         return [copy.copy(config) for config in self._lean_configs if config.is_required_from_user()]
 
-    def _build(self, lean_config: Dict[str, Any], logger: Logger) -> LocalBrokerage:
+    def build(self, lean_config: Dict[str, Any], logger: Logger) -> 'JsonModule':
         
         if self._is_installed_and_build:
             return self
