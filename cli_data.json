@@ -6,6 +6,81 @@
         "data-queue-handler"
       ],
       "product-id": "",
+      "name": "OANDA",
+      "installs": false,
+      "configurations": [
+       {
+         "Name": "oanda-account-id",
+         "Type": "input",
+         "Value": "",
+         "Environment": [
+          "Practice", "Trade"
+        ],
+         "Input-method": "prompt",
+         "Input-data":"Account id", 
+         "Help": "Your IB API key",
+         "Log-message": "Your OANDA account id can be found on your OANDA Account Statement page (https://www.oanda.com/account/statement/). It follows the following format: ###-###-######-###. You can generate an API token from the Manage API Access page (https://www.oanda.com/account/tpa/personal_token)."
+       },
+       {
+        "Name": "oanda-access-token",
+        "Type": "input",
+        "Value": "",
+        "Environment": [
+          "Practice", "Trade"
+        ],
+        "Input-method": "prompt-password",
+        "Input-data":"Access token", 
+        "Help": "Your IB API key"
+      },
+       {
+        "Name": "oanda-environment",
+        "Type": "trading-env",
+        "Value": "",
+        "Environment": [
+          "Practice", "Trade"
+        ],
+        "Input-method": "choice",
+        "Input-choices": ["Practice", "Trade"],
+        "Input-data":"Environment?", 
+        "Help": "Whether the testnet should be used"
+      },
+       {
+          "Name": "environments",
+          "Type": "configurations-env",
+          "Value": [
+            {
+              "Name": "lean-cli",
+              "Value": [
+                {
+                  "Name": "live-mode-brokerage",
+                  "Value": "OandaBrokerage"
+                },
+                {
+                  "Name": "transaction-handler",
+                  "Value": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler"
+                },
+                {
+                 "Name": "data-queue-handler",
+                 "Value": "OandaBrokerage"
+               },
+               {
+                 "Name": "history-provider",
+                 "Value": "BrokerageHistoryProvider"
+               }
+              ]
+            }
+          ],
+          "Environment": [
+           "Practice", "Trade"
+         ]
+        }
+      ]
+    },
+    {
+      "type": [
+        "data-queue-handler"
+      ],
+      "product-id": "",
       "name": "IQFeed",
       "installs": false,
       "configurations": [
@@ -17,51 +92,52 @@
           "live", "paper"
         ],
          "Input-method": "path-parameter",
-         "Input-data":"User name", 
+         "Input-default":"C:/Program Files (x86)/DTN/IQFeed/iqconnect.exe",
+         "Input-data":"IQConnect binary location", 
          "Help": "Your IB API key"
        },
        {
-        "Name": "tt-session-password",
-        "Type": "input",
-        "Value": "",
-        "Environment": [
-          "live", "paper"
-        ],
-        "Input-method": "prompt-password",
-        "Input-data":"Session password", 
-        "Help": "Your IB API key"
-      },
-      {
-        "Name": "tt-account-name",
+        "Name": "iqfeed-username",
         "Type": "input",
         "Value": "",
         "Environment": [
          "live", "paper"
        ],
         "Input-method": "prompt",
-        "Input-data":"Account name", 
+        "Input-data":"Username", 
         "Help": "Your IB API key"
       },
-      {
-        "Name": "tt-rest-app-key",
-        "Type": "input",
-        "Value": "",
-        "Environment": [
-         "live", "paper"
-       ],
-        "Input-method": "prompt",
-        "Input-data":"REST app key", 
-        "Help": "Your IB API key"
-      },
-      {
-        "Name": "tt-rest-app-secret",
+       {
+        "Name": "iqfeed-password",
         "Type": "input",
         "Value": "",
         "Environment": [
           "live", "paper"
         ],
         "Input-method": "prompt-password",
-        "Input-data":"REST app secret", 
+        "Input-data":"Password", 
+        "Help": "Your IB API key"
+      },
+      {
+        "Name": "iqfeed-productName",
+        "Type": "input",
+        "Value": "",
+        "Environment": [
+         "live", "paper"
+       ],
+        "Input-method": "prompt",
+        "Input-data":"Product id", 
+        "Help": "Your IB API key"
+      },
+      {
+        "Name": "iqfeed-version",
+        "Type": "input",
+        "Value": "",
+        "Environment": [
+          "live", "paper"
+        ],
+        "Input-method": "prompt",
+        "Input-data":"Product version", 
         "Help": "Your IB API key"
       },
        {
@@ -72,17 +148,13 @@
               "Name": "lean-cli",
               "Value": [
                 {
-                  "Name": "live-mode-brokerage",
-                  "Value": "TradingTechnologiesBrokerage"
-                },
-                {
-                  "Name": "transaction-handler",
-                  "Value": "QuantConnect.Lean.Engine.TransactionHandlers.BrokerageTransactionHandler"
-                },
-                {
                  "Name": "data-queue-handler",
-                 "Value": "TradingTechnologiesBrokerage"
-               }
+                 "Value": "QuantConnect.ToolBox.IQFeed.IQFeedDataQueueHandler"
+               },
+               {
+                "Name": "history-provider",
+                "Value": "QuantConnect.ToolBox.IQFeed.IQFeedDataQueueHandler"
+              }
               ]
             }
           ],

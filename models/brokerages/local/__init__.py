@@ -13,14 +13,12 @@
 
 import os
 from typing import Dict, Type, List
-
 from lean.container import container
-from lean.models.brokerages.local.json_module_base import LocalBrokerage
 from lean.models.json_module_config import LeanConfigConfigurer
 import json
 from lean.models.brokerages.local.json_brokerage import JsonBrokerage
-from lean.models.brokerages.local.iqfeed import IQFeedDataFeed
 from lean.models.brokerages.local.json_data_feed import JsonDataFeed
+from lean.models.brokerages.local.json_module import JsonModule
 
 brokerages = []
 dataQueueHandlers = []
@@ -32,9 +30,9 @@ dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, '../../../cli_data.json')
 with open(filename) as f: 
     data = json.load(f)
-    json_modules = data['modules']
-    brokerage = dataQueueHandler = None   
+    json_modules = data['modules']   
     for json_module in json_modules:
+        brokerage = dataQueueHandler = None
         if "brokerage" in json_module["type"]:
             brokerage = JsonBrokerage(json_module)
             brokerages.append(brokerage)
@@ -50,9 +48,12 @@ all_local_brokerages = brokerages
 
 all_local_data_feeds = dataQueueHandlers
 
-local_brokerage_data_feeds: Dict[Type[LocalBrokerage], List[Type[LeanConfigConfigurer]]] = brokeragesAndDataQueueHandlers
+local_brokerage_data_feeds: Dict[Type[JsonModule], List[Type[LeanConfigConfigurer]]] = brokeragesAndDataQueueHandlers
 
 if container.platform_manager().is_host_windows() or os.environ.get("__README__", "false") == "true":
-    all_local_data_feeds.append(IQFeedDataFeed)
+    [iqfeed_data_feed] = [data_feed for data_feed in all_local_data_feeds if data_feed.get_name() == "IQFeed"]
     for key in local_brokerage_data_feeds.keys():
-        local_brokerage_data_feeds[key].append(IQFeedDataFeed)
+        local_brokerage_data_feeds[key].append(iqfeed_data_feed)
+# remove iqfeed from avaiable local data feeds
+else:
+    all_local_data_feeds = [data_feed for data_feed in all_local_data_feeds if data_feed.get_name() != "IQFeed"]
