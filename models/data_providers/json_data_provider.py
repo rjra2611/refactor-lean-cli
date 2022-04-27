@@ -11,39 +11,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-from typing import Dict, Any
+from typing import Any, Dict
+from lean.models.brokerages.local.json_module import JsonModule
 
-from lean.components.util.logger import Logger
-from lean.container import container
-from lean.models.json_module_config import LeanConfigConfigurer 
-from lean.models.logger import Option
+class JsonDataProvider(JsonModule):
+    """A Local DataProvider implementation for the Json data provider module."""
 
-
-class JsonDataProvider(LeanConfigConfigurer):
-    def __init__(self, organization_id: str) -> None:
-        self._organization_id = organization_id
-
-    @classmethod
-    def get_name(cls) -> str:
-        return "QuantConnect"
-
-    @classmethod
-    def build(cls, lean_config: Dict[str, Any], logger: Logger) -> LeanConfigConfigurer:
-        api_client = container.api_client()
-
-        organizations = api_client.organizations.get_all()
-        options = [Option(id=organization.id, label=organization.name) for organization in organizations]
-
-        logger = container.logger()
-        organization_id = logger.prompt_list("Select the organization to purchase and download data with", options)
-
-        return QuantConnectDataProvider(organization_id)
-
-    def configure(self, lean_config: Dict[str, Any], environment_name: str) -> None:
-        lean_config["job-organization-id"] = self._organization_id
-        lean_config["data-provider"] = "QuantConnect.Lean.Engine.DataFeeds.ApiDataProvider"
-        lean_config["map-file-provider"] = "QuantConnect.Data.Auxiliary.LocalZipMapFileProvider"
-        lean_config["factor-file-provider"] = "QuantConnect.Data.Auxiliary.LocalZipFactorFileProvider"
-
-        self._save_properties(lean_config,
-                              ["job-organization-id", "data-provider", "map-file-provider", "factor-file-provider"])
+    def __init__(self, json_data_provider_data: Dict[str, Any]) -> None:
+        super().__init__(json_data_provider_data)
