@@ -23,7 +23,6 @@ import abc
 class JsonModule(LeanConfigConfigurer, abc.ABC):
     """The JsonModule class is the base class extended for all json modules."""
 
-    @abc.abstractmethod
     def __init__(self, json_module_data: Dict[str, Any]) -> None:
         for key,value in json_module_data.items():
             if key == "configurations":
