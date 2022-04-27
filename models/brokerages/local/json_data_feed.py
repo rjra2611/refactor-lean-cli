@@ -15,7 +15,7 @@ from typing import Any, Dict
 from lean.models.brokerages.local.json_module import JsonModule
 
 class JsonDataFeed(JsonModule):
-    """A Local DataFeed implementation for the Json data feed module."""
+    """A JsonModule implementation for the Json data feed module."""
 
     def __init__(self, json_datafeed_data: Dict[str, Any]) -> None:
         super().__init__(json_datafeed_data)

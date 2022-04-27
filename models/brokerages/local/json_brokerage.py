@@ -15,7 +15,7 @@ from typing import Any, Dict
 from lean.models.brokerages.local.json_module import JsonModule
 
 class JsonBrokerage(JsonModule):
-    """A LocalBrokerage implementation for the Json brokerage module."""
+    """A JsonModule implementation for the Json brokerage module."""
 
     def __init__(self, json_brokerage_data: Dict[str, Any]) -> None:
         super().__init__(json_brokerage_data)

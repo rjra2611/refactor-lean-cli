@@ -15,7 +15,7 @@ from typing import Any, Dict
 from lean.models.brokerages.local.json_module import JsonModule
 
 class JsonDataProvider(JsonModule):
-    """A Local DataProvider implementation for the Json data provider module."""
+    """A JsonModule implementation for the Json data provider module."""
 
     def __init__(self, json_data_provider_data: Dict[str, Any]) -> None:
         super().__init__(json_data_provider_data)
