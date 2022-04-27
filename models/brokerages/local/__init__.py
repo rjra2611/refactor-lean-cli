@@ -19,12 +19,13 @@ import json
 from lean.models.brokerages.local.json_brokerage import JsonBrokerage
 from lean.models.brokerages.local.json_data_feed import JsonDataFeed
 from lean.models.brokerages.local.json_module import JsonModule
+from lean.models.data_providers.json_data_provider import JsonDataProvider
 
-brokerages = []
-dataQueueHandlers = []
-historyProviders = [] 
+all_local_brokerages = []
+all_local_data_feeds = []
+historyProviders = []
+all_data_providers = [] 
 brokeragesAndDataQueueHandlers = {}
-json_modules = None
 
 dirname = os.path.dirname(__file__)
 filename = os.path.join(dirname, '../../../cli_data.json')
@@ -32,21 +33,20 @@ with open(filename) as f:
     data = json.load(f)
     json_modules = data['modules']   
     for json_module in json_modules:
-        brokerage = dataQueueHandler = None
+        brokerage = dataQueueHandler = dataProviders = None
         if "brokerage" in json_module["type"]:
             brokerage = JsonBrokerage(json_module)
-            brokerages.append(brokerage)
+            all_local_brokerages.append(brokerage)
         if "data-queue-handler" in json_module["type"]:
             dataQueueHandler = JsonDataFeed(json_module)
-            dataQueueHandlers.append(dataQueueHandler)
+            all_local_data_feeds.append(dataQueueHandler)
+        if "data-provider" in json_module["type"]:
+            dataProviders = JsonDataProvider(json_module)
+            all_data_providers.append(dataProviders)
         if "history-provider" in json_module["type"]:
             pass
         if brokerage != None and dataQueueHandler != None:
             brokeragesAndDataQueueHandlers.update({brokerage:[dataQueueHandler]})
-            
-all_local_brokerages = brokerages
-
-all_local_data_feeds = dataQueueHandlers
 
 local_brokerage_data_feeds: Dict[Type[JsonModule], List[Type[LeanConfigConfigurer]]] = brokeragesAndDataQueueHandlers
 
@@ -57,3 +57,5 @@ if container.platform_manager().is_host_windows() or os.environ.get("__README__"
 # remove iqfeed from avaiable local data feeds
 else:
     all_local_data_feeds = [data_feed for data_feed in all_local_data_feeds if data_feed.get_name() != "IQFeed"]
+
+[QuantConnectDataProvider] = [data_provider for data_provider in all_data_providers if data_provider.get_name() == "QuantConnect"]
