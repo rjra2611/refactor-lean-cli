@@ -21,7 +21,7 @@ import copy
 import abc
 
 class JsonModule(LocalBrokerage, abc.ABC):
-    """A LocalBrokerage implementation for the Json brokerage."""
+    """The JsonModule class is the base class extended for all json modules."""
 
     def __init__(self, json_module_data: Dict[str, Any]) -> None:
         for key,value in json_module_data.items():
