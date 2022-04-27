@@ -59,10 +59,6 @@ class JsonModule(LocalBrokerage, abc.ABC):
     def update_configs(self, key_and_values: Dict[str, str]):
         for key, value in key_and_values.items():
             self.update_value_for_given_config(key,value)
-    
-    @abc.abstractmethod
-    def get_live_name(self, environment_name: str) -> str:
-        raise NotImplementedError()
 
     def get_configurations_env_values_from_name(self, target_env: str): 
         [env_config] = [config for config in self._lean_configs if 
