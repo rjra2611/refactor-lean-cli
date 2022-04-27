@@ -21,8 +21,6 @@ from lean.models.json_module_config import LeanConfigConfigurer
 class LocalBrokerage(LeanConfigConfigurer, abc.ABC):
     """The LocalBrokerage class is the base class extended for all local brokerages."""
 
-    _instance = None
-
     def build(self, lean_config: Dict[str, Any], logger: Logger) -> LeanConfigConfigurer:
         return self._build(lean_config, logger)
 
