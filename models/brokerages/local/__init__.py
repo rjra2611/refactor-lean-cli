@@ -20,6 +20,7 @@ from lean.models.json_module_config import LeanConfigConfigurer
 import json
 from lean.models.brokerages.local.json_brokerage import JsonBrokerage
 from lean.models.brokerages.local.iqfeed import IQFeedDataFeed
+from lean.models.brokerages.local.json_data_feed import JsonDataFeed
 
 brokerages = []
 dataQueueHandlers = []
@@ -37,7 +38,7 @@ with open(filename) as f:
             brokerage = JsonBrokerage(json_module)
             brokerages.append(brokerage)
         if "data-queue-handler" in json_module["type"]:
-            dataQueueHandler = JsonBrokerage(json_module)
+            dataQueueHandler = JsonDataFeed(json_module)
             dataQueueHandlers.append(dataQueueHandler)
         if "history-provider" in json_module["type"]:
             pass

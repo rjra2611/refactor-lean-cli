@@ -51,8 +51,8 @@ def _raise_for_missing_properties(lean_config: Dict[str, Any], environment_name:
     brokerage = environment["live-mode-brokerage"]
     data_queue_handler = environment["data-queue-handler"]
 
-    [brokerage_configurer] = [local_brokerage for local_brokerage in all_local_brokerages if local_brokerage.get_live_name(environment_name, True) == brokerage]
-    [data_feed_configurer] = [local_data_feed for local_data_feed in all_local_data_feeds if local_data_feed.get_live_name(environment_name, False) == data_queue_handler]
+    [brokerage_configurer] = [local_brokerage for local_brokerage in all_local_brokerages if local_brokerage.get_live_name(environment_name) == brokerage]
+    [data_feed_configurer] = [local_data_feed for local_data_feed in all_local_data_feeds if local_data_feed.get_live_name(environment_name) == data_queue_handler]
     brokerage_properties = brokerage_configurer.get_required_properties()
     data_queue_handler_properties = data_feed_configurer.get_required_properties()
 

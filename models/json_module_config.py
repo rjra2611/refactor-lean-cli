@@ -31,7 +31,7 @@ class LeanConfigConfigurer(abc.ABC):
         """
         raise NotImplementedError()
 
-    def get_live_name(self, environment_name: str, is_brokerage=False) -> str:
+    def get_live_name(self, environment_name: str) -> str:
         """Returns the user-friendly name which users can identify this object by.
 
         :param environment_name: the name of the environment to configure
