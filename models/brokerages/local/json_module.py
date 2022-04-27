@@ -22,7 +22,6 @@ import abc
 
 class JsonModule(LocalBrokerage, abc.ABC):
     """A LocalBrokerage implementation for the Json brokerage."""
-    _is_module_installed = False
 
     def __init__(self, json_module_data: Dict[str, Any]) -> None:
         for key,value in json_module_data.items():
@@ -34,6 +33,7 @@ class JsonModule(LocalBrokerage, abc.ABC):
                 continue
             setattr(self, self._convert_lean_key_to_attribute(key), value)
         self._organization_name = f'{self._name.lower().replace(" ", "-")}-organization'
+        self._is_module_installed = False
     
     @property
     def _user_filters(self):
