@@ -129,7 +129,7 @@ class InternalInputUserInput(UserInputConfiguration):
         self._value_options = value_options
 
     def AskUserForInput(self, default_value, logger: Logger):
-        return NotImplemented()
+        raise ValueError(f'user input not allowed with {self.__class__.__name__}')
 
 class PromptUserInput(UserInputConfiguration):
     map_to_types = {
