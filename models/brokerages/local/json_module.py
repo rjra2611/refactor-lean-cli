@@ -58,7 +58,7 @@ class JsonModule(LeanConfigConfigurer, abc.ABC):
     def get_name(self) -> str:
         return self._name
 
-    def check_if_config_passes_filters(self, config)  -> bool:
+    def check_if_config_passes_filters(self, config: Configuration)  -> bool:
         return all(elem in config._filter._options for elem in self._user_filters)
 
     def update_configs(self, key_and_values: Dict[str, str]):
