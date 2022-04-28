@@ -83,6 +83,10 @@ class JsonModule(LeanConfigConfigurer, abc.ABC):
         [idx] = [i for i in range(len(self._lean_configs)) if self._lean_configs[i]._name == target_name]
         return self._lean_configs[idx]._value
 
+    def get_non_user_required_properties(self) -> List[Configuration]:
+        return [config._name for config in self._lean_configs if not config.is_required_from_user()
+                    and self.check_if_config_passes_filters(config)]
+
     def get_required_properties(self) -> List[str]:
         return [config._name for config in self.get_required_configs()]
 

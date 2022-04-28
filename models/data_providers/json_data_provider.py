@@ -22,4 +22,4 @@ class JsonDataProvider(JsonModule):
 
     def configure_credentials(self, lean_config: Dict[str, Any]) -> None:
         super().configure_credentials(lean_config)
-        self._save_properties(lean_config, self.get_required_properties())
+        self._save_properties(lean_config, self.get_non_user_required_properties())
